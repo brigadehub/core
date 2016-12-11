@@ -1,0 +1,11 @@
+{
+  "name": "brigadehub-core",
+  "version": "0.0.1",
+  "dependencies": {
+    "lodash": {
+      "version": "4.17.2",
+      "from": "lodash@latest",
+      "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.2.tgz"
+    }
+  }
+}
