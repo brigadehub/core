@@ -1,0 +1,43 @@
+{
+  "name": "brigadehub-core",
+  "version": "0.0.1",
+  "description": "The core functionality of Brigadehub, sans themes.",
+  "main": "core.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/brigadehub/core.git"
+  },
+  "keywords": [
+    "brigade",
+    "brigadehub",
+    "hub",
+    "cms",
+    "c4a",
+    "c4sf",
+    "code",
+    "for",
+    "america",
+    "cfa",
+    "cfsf",
+    "sfbrigade",
+    "minimal",
+    "api",
+    "core",
+    "mongo",
+    "mongodb",
+    "mongoose",
+    "github",
+    "api",
+    "distributed",
+    "decentralized"
+  ],
+  "author": "Ozzy Haven <npm@therebelrobot.com> (@therebelrobot)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/brigadehub/core/issues"
+  },
+  "homepage": "https://github.com/brigadehub/core#readme"
+}
