@@ -4,7 +4,30 @@
   "description": "The core functionality of Brigadehub, sans themes.",
   "main": "core.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstall": "npm run db:migrate up",
+      "prestart": "npm install",
+      "start": "node app.js",
+      "pretest": "npm run lint",
+      "test": "npm run test:unit",
+      "test:e2e": "nightwatch",
+      "test:unit": "echo 'no unit test available.'",
+      "db:clear": "./scripts/database-clear",
+      "db:seed": "./scripts/database-seed",
+      "db:migrate": "./scripts/database-bootstrap && db-migrate --config config/database.json",
+      "develop": "npm install && gulp start",
+      "develop:nomongo": "gulp start:nomongo",
+      "install:clean": "rm -rf node_modules && npm install",
+      "lint": "standard",
+      "validate": "npm ls",
+      "selenium:install": "selenium-standalone install",
+      "selenium:start": "selenium-standalone start&",
+      "selenium:stop": "pkill -f selenium-standalone",
+      "build:docker": "docker build -t sfbrigade/brigadehub .",
+      "build:docker:run": "docker run -d --name brigadehub -p 80:5465 -e MONGODB=mongodb://192.168.99.100:27017/brigadehub-docker sfbrigade/brigadehub",
+      "build:docker:images": "docker images sfbrigade/brigadehub",
+      "build:docker:tag": "echo 'docker tag hash sfbrigade/brigadehub:release'",
+      "build:docker:push": "docker push sfbrigade/brigadehub",
+      "build:docker:untag": "echo 'docker rmi sfbrigade/brigadehub:release'"
   },
   "repository": {
     "type": "git",
@@ -39,5 +62,136 @@
   "bugs": {
     "url": "https://github.com/brigadehub/core/issues"
   },
-  "homepage": "https://github.com/brigadehub/core#readme"
+  "homepage": "https://github.com/brigadehub/core#readme",
+  "dependencies": {
+    "analytics-node": "^2.1.0",
+    "app-module-path": "^2.1.0",
+    "async": "^1.5.2",
+    "bcrypt-nodejs": "^0.0.3",
+    "body-parser": "^1.14.2",
+    "brigadehub-admin-c4sf": "0.0.6",
+    "brigadehub-core": "0.0.1",
+    "brigadehub-public-c4sf": "^0.1.13",
+    "colors": "^1.1.2",
+    "compression": "^1.6.0",
+    "connect-mongo": "^1.1.0",
+    "cookie-parser": "^1.4.1",
+    "db-migrate": "^0.10.0-beta.20",
+    "db-migrate-mongodb": "^1.1.4",
+    "dotenv": "^1.2.0",
+    "errorhandler": "^1.4.2",
+    "express": "^4.13.3",
+    "express-flash": "^0.0.2",
+    "express-session": "^1.13.0",
+    "express-validator": "^2.18.0",
+    "faker": "^3.1.0",
+    "gh-ls": "^1.0.0",
+    "github-get": "^0.3.1",
+    "gulp": "^3.9.1",
+    "gulp-nodemon": "^2.1.0",
+    "gulp-watch": "^4.3.6",
+    "is-url": "^1.2.2",
+    "link-header-parser": "0.0.2",
+    "lodash": "^4.0.0",
+    "lusca": "^1.3.0",
+    "markdown-it": "^6.0.5",
+    "markdown-it-named-headers": "0.0.4",
+    "method-override": "^2.3.5",
+    "moment": "^2.11.1",
+    "moment-timezone": "^0.5.3",
+    "mongoose": "^4.3.5",
+    "morgan": "^1.6.1",
+    "node-sass-middleware": "^0.9.7",
+    "node-uuid": "^1.4.7",
+    "node-version-checker": "^1.0.6",
+    "nodemailer": "^2.0.0",
+    "passport": "0.3.2",
+    "passport-github": "^1.0.0",
+    "passport-local": "^1.0.0",
+    "passport-meetup": "^1.0.0",
+    "pug": "^2.0.0-beta6",
+    "request": "^2.67.0",
+    "require-dir": "https://registry.npmjs.org/require-dir/-/require-dir-0.3.0.tgz",
+    "selectn": "1.0.9",
+    "serve-favicon": "^2.3.0",
+    "slug": "^0.9.1",
+    "slugify": "^1.0.2",
+    "supertest": "^2.0.1"
+  },
+  "devDependencies": {
+    "careful": "^1.1.0",
+    "chai": "^3.4.1",
+    "cz-conventional-changelog": "^1.1.6",
+    "ghooks": "^1.2.1",
+    "goosestrap": "^1.0.0",
+    "mocha": "^2.3.4",
+    "mongodb": "^2.1.7",
+    "mongoose-seed": "^0.3.1",
+    "nightwatch": "latest",
+    "nodemon": "^1.9.1",
+    "phantomjs-prebuilt": "2.1.11",
+    "seedling": "0.0.10",
+    "selenium-standalone": "latest",
+    "standard": "https://registry.npmjs.org/standard/-/standard-6.0.8.tgz",
+    "validate-commit-msg": "^2.6.1"
+  },
+  "standard": {
+    "globals": [
+      "it",
+      "beforeEach",
+      "describe",
+      "afterEach",
+      "after"
+    ],
+    "ignore": [
+      "**/js/lib/",
+      "migrations/"
+    ]
+  },
+  "config": {
+    "validate-commit-msg": {
+      "helpMessage": "Commit message \n\n\t%s\nis not following this project's commit standards. Please refer to the contribution wiki (https://github.com/sfbrigade/brigadehub/wiki/Contributing#default-commit-message-format) for more details."
+    },
+    "careful": {
+      "prefixes": [
+        "feature",
+        "hotfix",
+        "release",
+        "refactor",
+        "bugfix",
+        "docs"
+      ],
+      "suggestions": {
+        "features": "feature",
+        "feat": "feature",
+        "fix": "bugfix",
+        "bug": "bugfix",
+        "releases": "release",
+        "doc": "docs"
+      },
+      "skip": [
+        "demo",
+        "develop"
+      ],
+      "disallowed": [
+        "edge",
+        "master"
+      ],
+      "banned": [
+        "wip"
+      ],
+      "seperator": "/",
+      "msgBranchBanned": "Branch name %s banned from push usage. Please refer to the contribution wiki (https://github.com/sfbrigade/brigadehub/wiki/Contributing#branch-naming-format) for more details.",
+      "msgPrefixNotAllowed": "Branch must have an appropriate prefix (feature, hotfix, bugfix, docs). Please refer to the contribution wiki (https://github.com/sfbrigade/brigadehub/wiki/Contributing#branch-naming-format) for more details.",
+      "msgSeperatorRequired": "Branch must have an appropriate prefix (feature, hotfix, bugfix, docs). Please refer to the contribution wiki (https://github.com/sfbrigade/brigadehub/wiki/Contributing#branch-naming-format) for more details."
+    },
+    "ghooks": {
+      "pre-commit": "careful",
+      "commit-msg": "validate-commit-msg",
+      "pre-push": "npm test"
+    },
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }
