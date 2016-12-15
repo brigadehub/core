@@ -66,16 +66,16 @@ module.exports = function (opts) {
 
   var app = express()
 
-  helpers.bootstrapDatabase(startServer)
+  helpers.bootstrapDatabase(opts.brigade, startServer)
 
   function startServer (brigade) {
     var Brigade = require('./models/Brigade')
     brigadeDetails = brigade
-    const publicThemeLocation = path.join(__dirname, 'node_modules', `brigadehub-public-${brigadeDetails.theme.public}`)
-    const adminThemeLocation = path.join(__dirname, 'node_modules', `brigadehub-admin-${brigadeDetails.theme.admin}`)
+    const publicThemeLocation = brigade.theme ? path.join(__dirname, 'node_modules', `brigadehub-public-${brigadeDetails.theme.public}`) : false
+    const adminThemeLocation = brigade.theme ? path.join(__dirname, 'node_modules', `brigadehub-admin-${brigadeDetails.theme.admin}`) : false
 
-    const publicFileList = listAllFiles(`${publicThemeLocation}/public`)
-    const adminFileList = listAllFiles(`${adminThemeLocation}/public`)
+    const publicFileList = publicThemeLocation ? listAllFiles(`${publicThemeLocation}/public`) : []
+    const adminFileList = adminThemeLocation ? listAllFiles(`${adminThemeLocation}/public`) : []
     let redirectBlacklist = [
       'api/',
       'auth/',
@@ -100,13 +100,13 @@ module.exports = function (opts) {
     redirectBlacklist = redirectBlacklist.sort()
     redirectBlacklist = _.uniq(redirectBlacklist)
 
-    const publicControllers = requireDir(`${publicThemeLocation}/controllers`, {recurse: true})
-    const adminControllers = requireDir(`${adminThemeLocation}/controllers`, {recurse: true})
+    const publicControllers = publicThemeLocation ? requireDir(`${publicThemeLocation}/controllers`, {recurse: true}) : {}
+    const adminControllers = adminThemeLocation ? requireDir(`${adminThemeLocation}/controllers`, {recurse: true}) : {}
     /**
      * Express configuration.
      */
     app.set('port', process.env.PORT || 5465)
-    app.set('views', path.join(__dirname, 'node_modules'))
+    if (publicThemeLocation || adminThemeLocation) app.set('views', path.join(__dirname, 'node_modules'))
     app.locals.capitalize = function (value) {
       return value.charAt(0).toUpperCase() + value.slice(1)
     }
@@ -117,7 +117,7 @@ module.exports = function (opts) {
       return value + 's'
     }
     app.locals.isUrl = isUrl
-    app.set('view engine', 'pug')
+    if (publicThemeLocation || adminThemeLocation) app.set('view engine', 'pug')
     app.use(compress())
 
     app.use(logger('dev'))
