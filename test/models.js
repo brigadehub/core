@@ -5,7 +5,7 @@ var User = require('../models/Users') */
 /* global describe */
 
 describe('User Model', function () {
-  /* This is using the defunct user/pass auth. Needs to test Github auth*/
+  /* This is using the defunct user/pass auth. Needs to test Github auth */
   /* it('should create a new user', function(done) {
     var user = new User({
       email: 'test@gmail.com',
@@ -41,5 +41,5 @@ describe('User Model', function () {
       if (err) return done(err)
       done()
     })
-  });*/
+  }); */
 })

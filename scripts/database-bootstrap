@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
 require('../dotenv.js')()
-require('../helpers/bootstrapDatabase')(function(){
+require('../helpers/bootstrapDatabase')(null, function(){
   process.exit()
 })

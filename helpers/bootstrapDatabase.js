@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-module.exports = function (cb) {
+module.exports = function (defaultBrigadeData, cb) {
   let brigadeDetails
   mongoose.connect(process.env.MONGODB || process.env.MONGOLAB_URI, function (err) {
     if (err) throw new Error(err)
@@ -21,7 +21,7 @@ module.exports = function (cb) {
   Brigade.findOne({}, function (err, results) {
     if (err) throw err
     if (!results) {
-      var defaultBrigadeData = require('../seeds/Brigade')()[0]
+      defaultBrigadeData = defaultBrigadeData || require('../seeds/Brigade')()[0]
       defaultBrigadeData.slug = process.env.BRIGADE
       brigadeDetails = defaultBrigadeData
       var defaultBrigade = new Brigade(defaultBrigadeData)

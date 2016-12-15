@@ -35,27 +35,7 @@ module.exports = function () {
         type: 'permanent'
       }
     ],
-    theme: {
-      slug: 'brigadehub-public-c4sf',
-      public: 'c4sf',
-      admin: 'c4sf',
-      logo: 'http://i.imgur.com/hvFv1ow.png',
-      page: {
-        title: false,
-        events: true,
-        projects: true,
-        blog: true,
-        about: true,
-        login: true,
-        external: [
-          {
-            name: 'Google',
-            link: 'https://google.com',
-            target: '_blank'
-          }
-        ]
-      }
-    },
+    theme: false,
     copy: {
       tagline: 'is a community searching for technological solutions to social challenges.',
       description: "We're a bunch of civic-minded technologists, designers, and topic experts using our skills to improve Example and the world."
