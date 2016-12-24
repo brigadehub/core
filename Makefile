@@ -2,8 +2,6 @@ COREPATH ?= .
 PACKAGENAME ?= brigadehub-core
 
 start:
-	@echo make install
-	@$(MAKE) install
 	node app.js
 
 start/develop:
