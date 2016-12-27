@@ -12,7 +12,7 @@ for (seedName in seeds) {
   }
 }
 
-seeder.connect(process.env.MONGODB || process.env.MONGOLAB_URI, function () {
+seeder.connect(process.env.MONGODB_URI, function () {
   seeder.loadModels([
     'models/Users.js',
     'models/Posts.js',

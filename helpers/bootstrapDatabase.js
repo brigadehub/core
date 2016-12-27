@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 mongoose.Promise = global.Promise
 
 module.exports = function (defaultBrigadeData, cb) {
-  mongoose.connect(process.env.MONGODB || process.env.MONGOLAB_URI, function (err) {
+  mongoose.connect(process.env.MONGODB_URI, function (err) {
     if (err) throw new Error(err)
   })
   mongoose.connection.on('error', function (err) {

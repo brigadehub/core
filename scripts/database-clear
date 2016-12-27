@@ -15,7 +15,7 @@ var fs = require('fs')
 require('../dotenv.js')()
 
 // Connection URL
-var url = process.env.MONGODB
+var url = process.env.MONGODB_URI
 
 // Use connect method to connect to the Server
 MongoClient.connect(url, function (err, db) {
