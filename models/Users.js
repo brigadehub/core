@@ -1,6 +1,7 @@
 var bcrypt = require('bcrypt-nodejs')
 var crypto = require('crypto')
 var mongoose = require('mongoose')
+mongoose.Promise = global.Promise
 var request = require('request')
 var _ = require('lodash')
 var linkHeaderParser = require('link-header-parser')

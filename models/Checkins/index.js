@@ -1,4 +1,5 @@
 var mongoose = require('mongoose')
+mongoose.Promise = global.Promise
 
 const Users = require('../Users')
 

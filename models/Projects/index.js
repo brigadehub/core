@@ -1,4 +1,6 @@
 var mongoose = require('mongoose')
+mongoose.Promise = global.Promise
+
 var _ = require('lodash')
 var Users = require('../Users')
 

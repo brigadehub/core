@@ -183,11 +183,6 @@ module.exports = function (opts) {
     app.use(passport.initialize())
     app.use(passport.session())
     app.use(flash())
-    app.use(lusca({
-      csrf: true,
-      xframe: 'SAMEORIGIN',
-      xssProtection: true
-    }))
     app.use(function (req, res, next) {
       // check postAuthLink and see if going to auth callback
       if (!isPublicFile(req.path, redirectBlacklist)) {
@@ -198,33 +193,36 @@ module.exports = function (opts) {
       next()
     })
     app.use(function (req, res, next) {
+      if (
+        process.env.NODE_ENV === 'production' &&
+        res.locals.brigade.auth.github.clientId === 'be1b409d62f41a56684c' &&
+        req.path.indexOf('init/configure') < 0
+      ) {
+        // console.log()
+        return res.redirect('/init/configure')
+      }
+      next()
+    })
+    app.use(function (req, res, next) {
       req.previousURL = req.header('Referer') || '/'
       next()
     })
 
-    /**
-     *  Dynamically Generated Routes
-     */
-
-    const dynamicRoutes = {}
-    buildOutEndpoints(controllers, app, dynamicRoutes)
-    buildOutEndpoints(publicControllers, app, dynamicRoutes)
-    buildOutEndpoints(adminControllers, app, dynamicRoutes)
-    buildOutDynamicEndpoints(dynamicRoutes, app)
-
-    /**
-     *  API routes
-     */
-
     app.get('/api/models/:model', APIctrl.get.models)
 
-    /**
-     * Users routes.
-     */
+    app.get('/init/configure', function(req, res) {
+     res.sendFile(path.resolve(__dirname, './config/configure.html'));
+    })
 
-    /**
-     * OAuth authentication routes. (Sign in)
-     */
+    app.post('/init/configure', function(req, res) {
+     console.log(req.body)
+     res.locals.brigade.auth.github.clientId = req.body.GITHUB_ID
+     res.locals.brigade.auth.github.clientSecret = req.body.GITHUB_SECRET
+     res.locals.brigade.save(function(err, brigade) {
+       if(err) throw err
+       res.redirect('/')
+     })
+    })
     app.get('/auth/github', passport.authenticate('github', {
       scope: [ 'user', 'public_repo' ]
     }))
@@ -237,6 +235,22 @@ module.exports = function (opts) {
     app.get('/auth/meetup/callback', passport.authenticate('meetup', { failureRedirect: '/account' }), function (req, res) {
       res.redirect(req.session.returnTo || '/account')
     })
+
+    app.use(lusca({
+     csrf: true,
+     xframe: 'SAMEORIGIN',
+     xssProtection: true
+    }))
+
+    /**
+     *  Dynamically Generated Routes
+     */
+
+    const dynamicRoutes = {}
+    buildOutEndpoints(controllers, app, dynamicRoutes)
+    buildOutEndpoints(publicControllers, app, dynamicRoutes)
+    buildOutEndpoints(adminControllers, app, dynamicRoutes)
+    buildOutDynamicEndpoints(dynamicRoutes, app)
 
     /**
      * Error Handler.
@@ -261,6 +275,7 @@ module.exports = function (opts) {
     })
     app.use(favicon(path.join(publicThemeLocation, 'public', 'favicon.png')))
     app.use(express.static(path.join(publicThemeLocation, 'public'), { maxAge: 31557600000 }))
+    app.use(express.static(path.join(adminThemeLocation, 'public'), { maxAge: 31557600000 }))
     app.listen(app.get('port'), function () {
       console.log(`${info} Server listening on port ${app.get('port')}`)
     })

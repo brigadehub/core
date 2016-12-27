@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
+mongoose.Promise = global.Promise
 
 module.exports = function (defaultBrigadeData, cb) {
-  let brigadeDetails
   mongoose.connect(process.env.MONGODB || process.env.MONGOLAB_URI, function (err) {
     if (err) throw new Error(err)
   })
@@ -21,19 +21,18 @@ module.exports = function (defaultBrigadeData, cb) {
   Brigade.findOne({}, function (err, results) {
     if (err) throw err
     if (!results) {
+      console.log('defaultBrigadeData', defaultBrigadeData)
       defaultBrigadeData = defaultBrigadeData || require('../seeds/Brigade')()[0]
       defaultBrigadeData.slug = process.env.BRIGADE
-      brigadeDetails = defaultBrigadeData
       var defaultBrigade = new Brigade(defaultBrigadeData)
       defaultBrigade.save(function (err) {
         if (err) throw err
         process.env.DB_INSTANTIATED = true
-        cb(brigadeDetails)
+        cb(defaultBrigade)
       })
     } else {
       process.env.DB_INSTANTIATED = true
-      brigadeDetails = results
-      cb(brigadeDetails)
+      cb(results)
     }
   })
 }

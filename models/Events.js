@@ -1,4 +1,6 @@
 var mongoose = require('mongoose')
+mongoose.Promise = global.Promise
+
 var request = require('request')
 var uuid = require('node-uuid')
 var eventsSchema = new mongoose.Schema({

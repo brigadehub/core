@@ -1,4 +1,6 @@
 var mongoose = require('mongoose')
+mongoose.Promise = global.Promise
+
 var moment = require('moment')
 // var request = require('request')
 var ghls = require('gh-ls')
