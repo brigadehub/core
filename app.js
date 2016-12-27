@@ -195,7 +195,11 @@ module.exports = function (opts) {
     app.use(function (req, res, next) {
       if (
         process.env.NODE_ENV === 'production' &&
-        res.locals.brigade.auth.github.clientId === 'be1b409d62f41a56684c' &&
+        (
+        !res.locals.brigade.auth.github ||
+        res.locals.brigade.auth.github.clientId === '' ||
+        res.locals.brigade.auth.github.clientId === 'be1b409d62f41a56684c'
+        ) &&
         req.path.indexOf('init/configure') < 0
       ) {
         // console.log()
@@ -210,18 +214,18 @@ module.exports = function (opts) {
 
     app.get('/api/models/:model', APIctrl.get.models)
 
-    app.get('/init/configure', function(req, res) {
-     res.sendFile(path.resolve(__dirname, './config/configure.html'));
+    app.get('/init/configure', function (req, res) {
+      res.sendFile(path.resolve(__dirname, './config/configure.html'))
     })
 
-    app.post('/init/configure', function(req, res) {
-     console.log(req.body)
-     res.locals.brigade.auth.github.clientId = req.body.GITHUB_ID
-     res.locals.brigade.auth.github.clientSecret = req.body.GITHUB_SECRET
-     res.locals.brigade.save(function(err, brigade) {
-       if(err) throw err
-       res.redirect('/')
-     })
+    app.post('/init/configure', function (req, res) {
+      console.log(req.body)
+      res.locals.brigade.auth.github.clientId = req.body.GITHUB_ID
+      res.locals.brigade.auth.github.clientSecret = req.body.GITHUB_SECRET
+      res.locals.brigade.save(function (err, brigade) {
+        if (err) throw err
+        res.redirect('/')
+      })
     })
     app.get('/auth/github', passport.authenticate('github', {
       scope: [ 'user', 'public_repo' ]
@@ -237,9 +241,9 @@ module.exports = function (opts) {
     })
 
     app.use(lusca({
-     csrf: true,
-     xframe: 'SAMEORIGIN',
-     xssProtection: true
+      csrf: true,
+      xframe: 'SAMEORIGIN',
+      xssProtection: true
     }))
 
     /**

@@ -83,7 +83,7 @@ var brigadeSchema = new mongoose.Schema({
 })
 brigadeSchema.pre('save', function (next) {
   const brigade = this
-  if(getProp('_strategies.github._oauth2._clientId', passport)){
+  if (getProp('_strategies.github._oauth2._clientId', passport)) {
     passport._strategies.github._oauth2._clientId = brigade.auth.github.clientId
     passport._strategies.github._oauth2._clientSecret = brigade.auth.github.clientSecret
   }
