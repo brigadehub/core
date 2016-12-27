@@ -1,6 +1,6 @@
 {
   "name": "brigadehub-core",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0-alpha.8",
   "description": "The core functionality of Brigadehub, sans themes.",
   "main": "app.js",
   "engines": {
