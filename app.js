@@ -70,11 +70,13 @@ module.exports = function (opts) {
 
   var app = express()
 
+  console.log(opts.brigade.theme)
   helpers.bootstrapDatabase(opts.brigade, startServer)
 
   function startServer (brigade) {
     var Brigade = require('./models/Brigade')
     brigadeDetails = brigade
+    console.log(brigade.theme)
     const publicThemeLocation = brigade.theme.public ? path.join(__dirname, 'node_modules', `brigadehub-public-${brigadeDetails.theme.public}`) : false
     const adminThemeLocation = brigade.theme.admin ? path.join(__dirname, 'node_modules', `brigadehub-admin-${brigadeDetails.theme.admin}`) : false
     const publicFileList = publicThemeLocation ? listAllFiles(`${publicThemeLocation}/public`) : []
@@ -244,6 +246,8 @@ module.exports = function (opts) {
       console.log(req.body)
       res.locals.brigade.auth.github.clientId = req.body.GITHUB_ID
       res.locals.brigade.auth.github.clientSecret = req.body.GITHUB_SECRET
+      res.locals.brigade.url = req.body.base_url
+      console.log(passport._strategies.github._callbackURL)
       res.locals.brigade.save(function (err, brigade) {
         if (err) throw err
         res.redirect('/')

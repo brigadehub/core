@@ -15,7 +15,7 @@ module.exports = new mongoose.Schema({
     geo: {type: String, default: ''},
     timezone: {type: String, default: 'America/Los_Angeles'}
   },
-  url: {type: String, default: ''},
+  url: {type: String, default: 'http://localhost:5465'},
   github: {type: String, default: ''},
   slack: {type: String, default: 'http://c4a.me/cfsfslack'},
   slackcount: {type: Number, default: 0},

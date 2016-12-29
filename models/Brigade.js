@@ -10,6 +10,7 @@ brigadeSchema.pre('save', function (next) {
   if (getProp('_strategies.github._oauth2._clientId', passport)) {
     passport._strategies.github._oauth2._clientId = brigade.auth.github.clientId
     passport._strategies.github._oauth2._clientSecret = brigade.auth.github.clientSecret
+    passport._strategies.github._callbackURL = brigade.url + '/auth/github/callback'
   }
   next()
 })
