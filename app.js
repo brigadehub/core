@@ -77,8 +77,8 @@ module.exports = function (opts) {
     var Brigade = require('./models/Brigade')
     brigadeDetails = brigade
     console.log(brigade.theme)
-    const publicThemeLocation = brigade.theme.public ? path.join(__dirname, 'node_modules', `brigadehub-public-${brigadeDetails.theme.public}`) : false
-    const adminThemeLocation = brigade.theme.admin ? path.join(__dirname, 'node_modules', `brigadehub-admin-${brigadeDetails.theme.admin}`) : false
+    const publicThemeLocation = brigade.theme.public ? path.join(process.cwd(), 'node_modules', `brigadehub-public-${brigadeDetails.theme.public}`) : false
+    const adminThemeLocation = brigade.theme.admin ? path.join(process.cwd(), 'node_modules', `brigadehub-admin-${brigadeDetails.theme.admin}`) : false
     const publicFileList = publicThemeLocation ? listAllFiles(`${publicThemeLocation}/public`) : []
     const adminFileList = adminThemeLocation ? listAllFiles(`${adminThemeLocation}/public`) : []
     let redirectBlacklist = [
@@ -111,7 +111,7 @@ module.exports = function (opts) {
      * Express configuration.
      */
     app.set('port', process.env.PORT || 5465)
-    if (publicThemeLocation || adminThemeLocation) app.set('views', path.join(__dirname, 'node_modules'))
+    if (publicThemeLocation || adminThemeLocation) app.set('views', path.join(process.cwd(), 'node_modules'))
     app.locals.capitalize = function (value) {
       return value.charAt(0).toUpperCase() + value.slice(1)
     }
