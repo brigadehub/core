@@ -10,7 +10,7 @@ const fetchGithubUsers = require('./fetchGithubUsers')
 var projectsSchema = require('../../schemas/projects')
 
 projectsSchema.statics.fetchGithubRepos = fetchGithubRepos
-projectsSchema.statics.fetchGitHubUsers = fetchGithubUsers
+projectsSchema.statics.fetchGithubUsers = fetchGithubUsers
 projectsSchema.statics.publishToGithub = publishToGithub
 
 projectsSchema.pre('save', preSave)
