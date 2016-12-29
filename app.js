@@ -4,30 +4,34 @@ require('node-version-checker')
 /**
  * Module dependencies.
  */
-var express = require('express')
-var _ = require('lodash')
-var cookieParser = require('cookie-parser')
-var compress = require('compression')
-var favicon = require('serve-favicon')
-var session = require('express-session')
-var bodyParser = require('body-parser')
-var logger = require('morgan')
-var errorHandler = require('errorhandler')
-var lusca = require('lusca')
-var methodOverride = require('method-override')
-var MongoStore = require('connect-mongo/es5')(session)
-var flash = require('express-flash')
-var passport = require('passport')
-var expressValidator = require('express-validator')
-var sass = require('node-sass-middleware')
-var path = require('path')
-var requireDir = require('require-dir')
-var pkg = require('./package.json')
-var isUrl = require('is-url')
+const express = require('express')
+const _ = require('lodash')
+const cookieParser = require('cookie-parser')
+const compress = require('compression')
+const favicon = require('serve-favicon')
+const session = require('express-session')
+const ejwt = require('express-jwt')
+const jwtsecret = process.env.JWT_SECRET || 'sUp3r$3creT'
+// const graphqlHTTP = require('express-graphql')
+const bodyParser = require('body-parser')
+const logger = require('morgan')
+const errorHandler = require('errorhandler')
+const lusca = require('lusca')
+const methodOverride = require('method-override')
+const MongoStore = require('connect-mongo/es5')(session)
+const flash = require('express-flash')
+const passport = require('passport')
+const expressValidator = require('express-validator')
+const sass = require('node-sass-middleware')
+const path = require('path')
+const requireDir = require('require-dir')
+const pkg = require('./package.json')
+const isUrl = require('is-url')
+// const graphSchemas = require('./graph')
 
 // Segment server-side tracking
-var Analytics = require('analytics-node')
-var analytics // placeholder for instantiated client
+const Analytics = require('analytics-node')
+let analytics // placeholder for instantiated client
 
 require('colors')
 
@@ -71,9 +75,8 @@ module.exports = function (opts) {
   function startServer (brigade) {
     var Brigade = require('./models/Brigade')
     brigadeDetails = brigade
-    const publicThemeLocation = brigade.theme ? path.join(__dirname, 'node_modules', `brigadehub-public-${brigadeDetails.theme.public}`) : false
-    const adminThemeLocation = brigade.theme ? path.join(__dirname, 'node_modules', `brigadehub-admin-${brigadeDetails.theme.admin}`) : false
-
+    const publicThemeLocation = brigade.theme.public ? path.join(__dirname, 'node_modules', `brigadehub-public-${brigadeDetails.theme.public}`) : false
+    const adminThemeLocation = brigade.theme.admin ? path.join(__dirname, 'node_modules', `brigadehub-admin-${brigadeDetails.theme.admin}`) : false
     const publicFileList = publicThemeLocation ? listAllFiles(`${publicThemeLocation}/public`) : []
     const adminFileList = adminThemeLocation ? listAllFiles(`${adminThemeLocation}/public`) : []
     let redirectBlacklist = [
@@ -185,9 +188,9 @@ module.exports = function (opts) {
     app.use(flash())
     app.use(function (req, res, next) {
       // check postAuthLink and see if going to auth callback
-      if (!isPublicFile(req.path, redirectBlacklist)) {
-        console.log('returnTo', req.path)
-        req.session.returnTo = req.path
+      if (!isPublicFile(req.path, redirectBlacklist)) req.session.returnTo = req.path
+      if (!(publicThemeLocation || adminThemeLocation)) {
+        req.session.noTheme = true
       }
       res.locals.user = req.user
       next()
@@ -211,8 +214,27 @@ module.exports = function (opts) {
       req.previousURL = req.header('Referer') || '/'
       next()
     })
-
-    app.get('/api/models/:model', APIctrl.get.models)
+    function fromHeaderOrQuerystring (req) {
+      if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+        return req.headers.authorization.split(' ')[1]
+      } else if (req.query && req.query.token) {
+        return req.query.token
+      }
+      return null
+    }
+    // console.log(graphSchemas)
+    // app.use('/graph',
+    //   ejwt({secret: jwtsecret, userProperty: 'tokenPayload', getToken: fromHeaderOrQuerystring}),
+    //   middleware.jwtLoadUser,
+    //   graphqlHTTP({
+    //     schema: graphSchemas,
+    //     graphiql: true
+    //   }))
+    app.get('/api/models/:model', ejwt({
+      secret: jwtsecret,
+      userProperty: 'tokenPayload',
+      getToken: fromHeaderOrQuerystring
+    }), middleware.jwtLoadUser, APIctrl.get.models)
 
     app.get('/init/configure', function (req, res) {
       res.sendFile(path.resolve(__dirname, './config/configure.html'))
@@ -233,6 +255,7 @@ module.exports = function (opts) {
     app.get('/auth/github/elevate', middleware.passport.elevateScope)
     app.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), function (req, res) {
       console.log('new github callback!', req.session.returnTo)
+      console.log('req.session.noTheme', req.session.noTheme)
       res.redirect(req.session.returnTo || '/')
     })
     app.get('/auth/meetup', passport.authenticate('meetup', { scope: ['basic', 'rsvp'] }))
@@ -252,21 +275,23 @@ module.exports = function (opts) {
 
     const dynamicRoutes = {}
     buildOutEndpoints(controllers, app, dynamicRoutes)
-    buildOutEndpoints(publicControllers, app, dynamicRoutes)
-    buildOutEndpoints(adminControllers, app, dynamicRoutes)
+    if (publicThemeLocation) buildOutEndpoints(publicControllers, app, dynamicRoutes)
+    if (adminThemeLocation) buildOutEndpoints(adminControllers, app, dynamicRoutes)
     buildOutDynamicEndpoints(dynamicRoutes, app)
 
     /**
      * Error Handler.
      */
     app.use(errorHandler())
-    app.use(sass({
-      src: path.join(publicThemeLocation, 'public'),
-      dest: path.join(publicThemeLocation, 'public'),
-      debug: true,
-      sourceMap: true,
-      outputStyle: 'expanded'
-    }))
+    if (publicThemeLocation) {
+      app.use(sass({
+        src: path.join(publicThemeLocation, 'public'),
+        dest: path.join(publicThemeLocation, 'public'),
+        debug: true,
+        sourceMap: true,
+        outputStyle: 'expanded'
+      }))
+    }
     app.use(function (req, res, next) {
       if (_.filter(res.locals.brigade.redirects, {endpoint: req.path}).length) {
         var redirect = _.filter(res.locals.brigade.redirects, {endpoint: req.path})[0]
@@ -277,9 +302,9 @@ module.exports = function (opts) {
       }
       next()
     })
-    app.use(favicon(path.join(publicThemeLocation, 'public', 'favicon.png')))
-    app.use(express.static(path.join(publicThemeLocation, 'public'), { maxAge: 31557600000 }))
-    app.use(express.static(path.join(adminThemeLocation, 'public'), { maxAge: 31557600000 }))
+    if (publicThemeLocation) app.use(favicon(path.join(publicThemeLocation, 'public', 'favicon.png')))
+    if (publicThemeLocation) app.use(express.static(path.join(publicThemeLocation, 'public'), { maxAge: 31557600000 }))
+    if (adminThemeLocation) app.use(express.static(path.join(adminThemeLocation, 'public'), { maxAge: 31557600000 }))
     app.listen(app.get('port'), function () {
       console.log(`${info} Server listening on port ${app.get('port')}`)
     })

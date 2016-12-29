@@ -2,18 +2,18 @@ COREPATH ?= .
 PACKAGENAME ?= brigadehub-core
 
 start:
-	node app.js
+	node standalone.js
 
 start/develop:
 	@echo make install
 	@$(MAKE) install
-	npm run nodemon -- app.js
+	npm run nodemon -- standalone.js
 
 start/develop/mongo:
 	@echo make install
 	@$(MAKE) install
 	mongod -d
-	npm run nodemon -- app.js
+	npm run nodemon -- standalone.js
 
 lint:
 	npm run standard

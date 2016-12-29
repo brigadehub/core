@@ -1,4 +1,6 @@
-module.exports = {
+const mongoose = require('mongoose')
+
+module.exports = new mongoose.Schema({
   date: { type: Date },
   name: { type: String, default: '' },
   email: { type: String, default: '' },
@@ -8,4 +10,4 @@ module.exports = {
   referredBy: { type: String, default: '' },
   skills: { type: Array, default: [] },
   lead: { type: Object, default: {} }
-}
+})

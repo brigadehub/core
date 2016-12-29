@@ -3,10 +3,9 @@ mongoose.Promise = global.Promise
 
 const Users = require('../Users')
 
-const schema = require('./schema')
 const syncUser = require('./syncUser')
 
-var checkinSchema = new mongoose.Schema(schema)
+var checkinSchema = require('../../schemas/checkins')
 
 checkinSchema.post('save', function (doc, next) {
   // check username presence + for corresponding user

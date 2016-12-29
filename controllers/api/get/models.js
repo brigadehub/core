@@ -16,6 +16,7 @@ const dateFields = [
 ]
 
 module.exports = function (req, res, next) {
+  console.log(req.user)
   const model = req.params.model
   const type = req.query.type
   let query = req.query.query || '{}'
