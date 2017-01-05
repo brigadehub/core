@@ -27,7 +27,6 @@ const path = require('path')
 const requireDir = require('require-dir')
 const pkg = require('./package.json')
 const isUrl = require('is-url')
-// const graphSchemas = require('./graph')
 
 // Segment server-side tracking
 const Analytics = require('analytics-node')
@@ -35,14 +34,9 @@ let analytics // placeholder for instantiated client
 
 require('colors')
 
-/**
- * Controllers (route handlers).
- */
-let APIctrl = require('./controllers/api')
-
 let controllers
 let middleware
-let helpers
+const helpers = requireDir('./helpers', {recurse: true})
 let models
 let config
 let brigadeDetails
@@ -65,7 +59,6 @@ module.exports = function (opts) {
 
   controllers = requireDir('./controllers', {recurse: true})
   middleware = requireDir('./middleware', {recurse: true})
-  helpers = requireDir('./helpers')
   models = require('./models')
   config = requireDir('./config')
 
@@ -112,6 +105,7 @@ module.exports = function (opts) {
      * Express configuration.
      */
     app.set('port', process.env.PORT || 5465)
+    app.set('query parser', 'simple') // for mortimer mongoose rest apis
     if (publicThemeLocation || adminThemeLocation) app.set('views', path.join(process.cwd(), 'node_modules'))
     app.locals.capitalize = function (value) {
       return value.charAt(0).toUpperCase() + value.slice(1)
@@ -217,27 +211,6 @@ module.exports = function (opts) {
       req.previousURL = req.header('Referer') || '/'
       next()
     })
-    function fromHeaderOrQuerystring (req) {
-      if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
-        return req.headers.authorization.split(' ')[1]
-      } else if (req.query && req.query.token) {
-        return req.query.token
-      }
-      return null
-    }
-    // console.log(graphSchemas)
-    // app.use('/graph',
-    //   ejwt({secret: jwtsecret, userProperty: 'tokenPayload', getToken: fromHeaderOrQuerystring}),
-    //   middleware.jwtLoadUser,
-    //   graphqlHTTP({
-    //     schema: graphSchemas,
-    //     graphiql: true
-    //   }))
-    app.get('/api/models/:model', ejwt({
-      secret: jwtsecret,
-      userProperty: 'tokenPayload',
-      getToken: fromHeaderOrQuerystring
-    }), middleware.jwtLoadUser, APIctrl.get.models)
 
     app.get('/init/configure', function (req, res) {
       res.sendFile(path.resolve(__dirname, './config/configure.html'))
@@ -324,6 +297,14 @@ module.exports = function (opts) {
  */
 function constructEndpoint (ctrl, app) {
   let ctrlParams = [ctrl.endpoint]
+  if (ctrl.jwt) {
+    ctrlParams.push(ejwt({
+      secret: jwtsecret,
+      userProperty: 'tokenPayload',
+      getToken: helpers.fromHeaderOrQuerystring
+    }))
+    ctrlParams.push(middleware.jwtLoadUser)
+  }
   if (ctrl.authenticated) ctrlParams.push(middleware.passport.isAuthenticated)
   if (ctrl.roles) ctrlParams.push(middleware.passport.checkRoles(ctrl.roles))
   if (ctrl.scopes) ctrlParams.push(middleware.passport.checkScopes(ctrl.scopes))
