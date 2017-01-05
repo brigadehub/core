@@ -61,6 +61,7 @@ module.exports = function (opts) {
   } else {
     console.log('.env provided')
   }
+  console.log(process.env.GITHUB_ID)
 
   controllers = requireDir('./controllers', {recurse: true})
   middleware = requireDir('./middleware', {recurse: true})

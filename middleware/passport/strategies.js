@@ -25,6 +25,7 @@ passport.deserializeUser(function (id, done) {
 /**
  * Sign in with GitHub.
  */
+console.log('process.env.GITHUB_ID',process.env.GITHUB_ID)
 passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_ID || 'be1b409d62f41a56684c',
   clientSecret: process.env.GITHUB_SECRET || '15b3e064eb512ed185f4e9a40e38cba5f1db594d',

@@ -17,19 +17,23 @@ eventsSchema.statics.fetchMeetupEvents = function (meetupid) {
       if (aggregate.length < 1) {
         reject('We were unable to find any events attached to your Meetup account. Please check your Meetup.com credentials if you were expecting to import some events. ')
       } else {
-        aggregate.forEach(function (outing) {
-          Events.find({'meetupid': outing.id}, function (err, foundEvent) {
-            if (foundEvent.length < 1) {
-              if (err) console.error(err)
-              var eventData = createEventData(outing)
-              var newEvent = new Events(eventData)
-              newEvent.save(function (err) {
+        // remove all meetup events, we'll repopulate them
+        Events.find({ meetupid : { $ne: '' } }).remove().exec(function(err, data){
+          if (err) console.error(err)
+          aggregate.forEach(function (outing) {
+            Events.find({'meetupid': outing.id}, function (err, foundEvent) {
+              if (foundEvent.length < 1) {
                 if (err) console.error(err)
-              })
-            }
+                var eventData = createEventData(outing)
+                var newEvent = new Events(eventData)
+                newEvent.save(function (err) {
+                  if (err) console.error(err)
+                })
+              }
+            })
           })
+          resolve()
         })
-        resolve()
       }
     })
   })

@@ -3,7 +3,13 @@ var seeder = require('mongoose-seed')
 require('../dotenv.js')()
 
 var requireDir = require('require-dir')
-var seeds = requireDir('../seeds')
+var seeds = {
+  Brigade: require('../seeds/Brigade'),
+  Events: require('../seeds/Events'),
+  Posts: require('../seeds/Posts'),
+  Projects: require('../seeds/Projects'),
+  Users: require('../seeds/Users')
+}
 for (seedName in seeds) {
   if (typeof seeds[seedName] === 'function') seeds[seedName] = seeds[seedName]()
   seeds[seedName] = {
