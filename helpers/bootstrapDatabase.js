@@ -21,9 +21,9 @@ module.exports = function (defaultBrigadeData, cb) {
   Brigade.findOne({}, function (err, results) {
     if (err) throw err
     if (!results) {
-      console.log('defaultBrigadeData', defaultBrigadeData)
+      // console.log('defaultBrigadeData', defaultBrigadeData)
       defaultBrigadeData = defaultBrigadeData || require('../seeds/Brigade')()[0]
-      console.log(defaultBrigadeData)
+      // console.log(defaultBrigadeData)
       defaultBrigadeData.slug = process.env.BRIGADE
       var defaultBrigade = new Brigade(defaultBrigadeData)
       defaultBrigade.save(function (err) {

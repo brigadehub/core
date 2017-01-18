@@ -8,7 +8,7 @@ module.exports = function fetchContributors (project, index) {
       if (err) return reject(err)
       Users.find({ 'teams.lead': project.id }, (err, leads) => {
         if (err) return reject(err)
-        resolve({leads: leads, members: members, index: index})
+        resolve({leads: leads, members: members, index: parseInt(index, 10)})
       })
     })
   })

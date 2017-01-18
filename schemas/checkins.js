@@ -9,5 +9,7 @@ module.exports = new mongoose.Schema({
   mailingList: { type: Boolean, default: false },
   referredBy: { type: String, default: '' },
   skills: { type: Array, default: [] },
-  lead: { type: Object, default: {} }
+  lead: { type: Object, default: {} },
+  user: { type: Object },
+  userPresent: { type: Boolean }
 })

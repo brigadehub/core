@@ -28,9 +28,6 @@ const requireDir = require('require-dir')
 const pkg = require('./package.json')
 const isUrl = require('is-url')
 
-// Segment server-side tracking
-const Analytics = require('analytics-node')
-let analytics // placeholder for instantiated client
 
 require('colors')
 
@@ -55,7 +52,6 @@ module.exports = function (opts) {
   } else {
     console.log('.env provided')
   }
-  console.log(process.env.GITHUB_ID)
 
   controllers = requireDir('./controllers', {recurse: true})
   middleware = requireDir('./middleware', {recurse: true})
@@ -64,17 +60,20 @@ module.exports = function (opts) {
 
   var app = express()
 
-  console.log(opts.brigade.theme)
   helpers.bootstrapDatabase(opts.brigade, startServer)
 
   function startServer (brigade) {
     var Brigade = require('./models/Brigade')
     brigadeDetails = brigade
-    console.log(brigade.theme)
+
     const publicThemeLocation = brigade.theme.public ? path.join(process.cwd(), 'node_modules', `brigadehub-public-${brigadeDetails.theme.public}`) : false
     const adminThemeLocation = brigade.theme.admin ? path.join(process.cwd(), 'node_modules', `brigadehub-admin-${brigadeDetails.theme.admin}`) : false
-    const publicFileList = publicThemeLocation ? listAllFiles(`${publicThemeLocation}/public`) : []
-    const adminFileList = adminThemeLocation ? listAllFiles(`${adminThemeLocation}/public`) : []
+
+    const publicControllers = publicThemeLocation ? requireDir(`${publicThemeLocation}/controllers`, {recurse: true}) : {}
+    const adminControllers = adminThemeLocation ? requireDir(`${adminThemeLocation}/controllers`, {recurse: true}) : {}
+
+    const publicFileList = publicThemeLocation ? helpers.bootstrap.listAllFiles(`${publicThemeLocation}/public`) : []
+    const adminFileList = adminThemeLocation ? helpers.bootstrap.listAllFiles(`${adminThemeLocation}/public`) : []
     let redirectBlacklist = [
       'api/',
       'auth/',
@@ -99,14 +98,44 @@ module.exports = function (opts) {
     redirectBlacklist = redirectBlacklist.sort()
     redirectBlacklist = _.uniq(redirectBlacklist)
 
-    const publicControllers = publicThemeLocation ? requireDir(`${publicThemeLocation}/controllers`, {recurse: true}) : {}
-    const adminControllers = adminThemeLocation ? requireDir(`${adminThemeLocation}/controllers`, {recurse: true}) : {}
+
     /**
      * Express configuration.
      */
+
     app.set('port', process.env.PORT || 5465)
+    app.set('jwtsecret', jwtsecret)
     app.set('query parser', 'simple') // for mortimer mongoose rest apis
-    if (publicThemeLocation || adminThemeLocation) app.set('views', path.join(process.cwd(), 'node_modules'))
+
+    // set theme view settings if present
+    let adminApp
+    if (publicThemeLocation || adminThemeLocation) {
+      app.set('views', path.join(process.cwd(), 'node_modules'))
+      app.set('view engine', 'pug')
+      app.use(flash())
+      app.use(sass({
+        src: path.join(publicThemeLocation, 'public'),
+        dest: path.join(publicThemeLocation, 'public'),
+        debug: true,
+        sourceMap: true,
+        outputStyle: 'expanded'
+      }))
+    }
+    if (adminThemeLocation) {
+      adminApp = express()
+      adminApp.set('views', path.join(process.cwd(), 'node_modules'))
+      adminApp.set('view engine', 'pug')
+      adminApp.use(flash())
+      adminApp.use(sass({
+        src: path.join(adminThemeLocation, 'public'),
+        dest: path.join(adminThemeLocation, 'public'),
+        debug: true,
+        sourceMap: true,
+        outputStyle: 'expanded'
+      }))
+    }
+
+    // set locals functions for use in view renderer
     app.locals.capitalize = function (value) {
       return value.charAt(0).toUpperCase() + value.slice(1)
     }
@@ -117,15 +146,17 @@ module.exports = function (opts) {
       return value + 's'
     }
     app.locals.isUrl = isUrl
-    if (publicThemeLocation || adminThemeLocation) app.set('view engine', 'pug')
-    app.use(compress())
 
+    // general middleware
+    app.use(compress())
     app.use(logger('dev'))
     app.use(bodyParser.json())
     app.use(bodyParser.urlencoded({ extended: true }))
     app.use(expressValidator())
     app.use(methodOverride())
     app.use(cookieParser())
+
+    // set up session
     app.use(session({
       resave: true,
       saveUninitialized: true,
@@ -135,105 +166,46 @@ module.exports = function (opts) {
         autoReconnect: true
       })
     }))
-    /* Check if db is connected */
-    app.use(checkDB)
-    function checkDB (req, res, next) {
-      if (process.env.DB_INSTANTIATED === '') {
-        return setTimeout(function () {
-          checkDB(req, res, next)
-        }, 500)
-      }
-      next()
-    }
-    /* Attach brigade info to req */
-    app.use(function (req, res, next) {
-      req.models = models
-      req.helpers = helpers
-      req.config = config
-      Brigade.findOne({}, function (err, results) {
-        if (err) throw err
-        if (!results) throw new Error('BRIGADE NOT IN DATABASE')
-        res.locals = res.locals || {}
-        res.locals.brigade = results
-        // bootstrap segment tracking
-        if (!analytics && res.locals.brigade.auth.segment.writeKey.length) {
-          analytics = new Analytics(res.locals.brigade.auth.segment.writeKey)
-        }
-        req.analytics = analytics || {
-          track: () => {
-          },
-          page: () => {
-          },
-          identify: () => {
-          },
-          group: () => {
-          },
-          alias: () => {
-          }
-        }
 
-        res.locals.brigade.buildVersion = pkg.version
-        res.theme = res.theme || {}
-        res.theme.public = `brigadehub-public-${brigadeDetails.theme.public}`
-        res.theme.admin = `brigadehub-admin-${brigadeDetails.theme.admin}`
-        helpers.tokenLoader(passport, res.locals.brigade.auth)
-        next()
-      })
-    })
+    app.use(middleware.bootstrap.checkDB)
+    app.use(middleware.bootstrap.attachBrigadeToReq)
+
+    // start passport + sessions
     app.use(passport.initialize())
     app.use(passport.session())
-    app.use(flash())
-    app.use(function (req, res, next) {
-      // check postAuthLink and see if going to auth callback
-      if (!isPublicFile(req.path, redirectBlacklist)) req.session.returnTo = req.path
-      if (!(publicThemeLocation || adminThemeLocation)) {
-        req.session.noTheme = true
-      }
-      res.locals.user = req.user
-      next()
-    })
-    app.use(function (req, res, next) {
-      if (
-        process.env.NODE_ENV === 'production' &&
-        (
-        !res.locals.brigade.auth.github ||
-        res.locals.brigade.auth.github.clientId === '' ||
-        res.locals.brigade.auth.github.clientId === 'be1b409d62f41a56684c'
-        ) &&
-        req.path.indexOf('init/configure') < 0
-      ) {
-        // console.log()
-        return res.redirect('/init/configure')
-      }
-      next()
-    })
-    app.use(function (req, res, next) {
-      req.previousURL = req.header('Referer') || '/'
-      next()
-    })
 
+    app.use(middleware.bootstrap.attachPaths(redirectBlacklist))
+    app.use(middleware.bootstrap.noThemeNotify(publicThemeLocation, adminThemeLocation))
+    app.use(middleware.bootstrap.attachUser)
+
+    /**
+     * Initial Application configuration.
+     */
+
+    app.use(middleware.bootstrap.initConfig)
     app.get('/init/configure', function (req, res) {
       res.sendFile(path.resolve(__dirname, './config/configure.html'))
     })
 
     app.post('/init/configure', function (req, res) {
-      console.log(req.body)
       res.locals.brigade.auth.github.clientId = req.body.GITHUB_ID
       res.locals.brigade.auth.github.clientSecret = req.body.GITHUB_SECRET
       res.locals.brigade.url = req.body.base_url
-      console.log(passport._strategies.github._callbackURL)
       res.locals.brigade.save(function (err, brigade) {
         if (err) throw err
         res.redirect('/')
       })
     })
+
+    /**
+     * Authorization routes
+     */
+
     app.get('/auth/github', passport.authenticate('github', {
-      scope: [ 'user', 'public_repo' ]
+      scope: [ 'user:email', 'public_repo' ]
     }))
     app.get('/auth/github/elevate', middleware.passport.elevateScope)
     app.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), function (req, res) {
-      console.log('new github callback!', req.session.returnTo)
-      console.log('req.session.noTheme', req.session.noTheme)
       res.redirect(req.session.returnTo || '/')
     })
     app.get('/auth/meetup', passport.authenticate('meetup', { scope: ['basic', 'rsvp'] }))
@@ -241,25 +213,30 @@ module.exports = function (opts) {
       res.redirect(req.session.returnTo || '/account')
     })
 
+    /**
+     *  Dynamically Generated Routes
+     */
+
+    let dynamicRoutes = {}
+    helpers.bootstrap.buildOutEndpoints(controllers, middleware, app, dynamicRoutes)
+    helpers.bootstrap.buildOutDynamicEndpoints(dynamicRoutes, middleware, app)
+    // don't require csrf for api endpoints ^
     app.use(lusca({
       csrf: true,
       xframe: 'SAMEORIGIN',
       xssProtection: true
     }))
+    // but do for everything else
+    dynamicRoutes = {}
+    if (publicThemeLocation) helpers.bootstrap.buildOutEndpoints(publicControllers, middleware, app, dynamicRoutes)
+    if (adminThemeLocation) helpers.bootstrap.buildOutEndpoints(adminControllers, middleware, adminApp, dynamicRoutes)
+    helpers.bootstrap.buildOutDynamicEndpoints(dynamicRoutes, middleware, app)
+    if (adminThemeLocation) {
+      helpers.bootstrap.buildOutDynamicEndpoints(dynamicRoutes, middleware, adminApp)
+      app.use('/admin', adminApp );
+    }
 
-    /**
-     *  Dynamically Generated Routes
-     */
 
-    const dynamicRoutes = {}
-    buildOutEndpoints(controllers, app, dynamicRoutes)
-    if (publicThemeLocation) buildOutEndpoints(publicControllers, app, dynamicRoutes)
-    if (adminThemeLocation) buildOutEndpoints(adminControllers, app, dynamicRoutes)
-    buildOutDynamicEndpoints(dynamicRoutes, app)
-
-    /**
-     * Error Handler.
-     */
     app.use(errorHandler())
     if (publicThemeLocation) {
       app.use(sass({
@@ -270,113 +247,24 @@ module.exports = function (opts) {
         outputStyle: 'expanded'
       }))
     }
-    app.use(function (req, res, next) {
-      if (_.filter(res.locals.brigade.redirects, {endpoint: req.path}).length) {
-        var redirect = _.filter(res.locals.brigade.redirects, {endpoint: req.path})[0]
-        if (redirect.type === 'permanent') {
-          return res.redirect(301, redirect.destination)
-        }
-        return res.redirect(redirect.destination)
-      }
-      next()
-    })
-    if (publicThemeLocation) app.use(favicon(path.join(publicThemeLocation, 'public', 'favicon.png')))
-    if (publicThemeLocation) app.use(express.static(path.join(publicThemeLocation, 'public'), { maxAge: 31557600000 }))
-    if (adminThemeLocation) app.use(express.static(path.join(adminThemeLocation, 'public'), { maxAge: 31557600000 }))
+    if (adminThemeLocation) {
+      adminApp.use(sass({
+        src: path.join(adminThemeLocation, 'public'),
+        dest: path.join(adminThemeLocation, 'public'),
+        debug: true,
+        sourceMap: true,
+        outputStyle: 'expanded'
+      }))
+    }
+    app.use(middleware.bootstrap.brigadeRedirects)
+    if (publicThemeLocation) {
+      app.use(favicon(path.join(publicThemeLocation, 'public', 'favicon.png')))
+      app.use(express.static(path.join(publicThemeLocation, 'public'), { maxAge: 31557600000 }))
+    }
+    if (adminThemeLocation) adminApp.use(express.static(path.join(adminThemeLocation, 'public'), { maxAge: 31557600000 }))
     app.listen(app.get('port'), function () {
       console.log(`${info} Server listening on port ${app.get('port')}`)
     })
     return app
   }
-}
-/**
- * constructEndpoint - Instantiate express routes
- *
- * @param  {Object} ctrl controller object
- * @param  {Object} app  Express Application
- */
-function constructEndpoint (ctrl, app) {
-  let ctrlParams = [ctrl.endpoint]
-  if (ctrl.jwt) {
-    ctrlParams.push(ejwt({
-      secret: jwtsecret,
-      userProperty: 'tokenPayload',
-      getToken: helpers.fromHeaderOrQuerystring
-    }))
-    ctrlParams.push(middleware.jwtLoadUser)
-  }
-  if (ctrl.authenticated) ctrlParams.push(middleware.passport.isAuthenticated)
-  if (ctrl.roles) ctrlParams.push(middleware.passport.checkRoles(ctrl.roles))
-  if (ctrl.scopes) ctrlParams.push(middleware.passport.checkScopes(ctrl.scopes))
-
-  // set other middleware
-  ctrl.middleware = ctrl.middleware.map(function (mwName) {
-    return middleware[mwName]
-  })
-  ctrlParams = ctrlParams.concat(ctrl.middleware)
-
-  // set final controller
-  ctrlParams.push(ctrl.controller)
-
-  // apply configuration and run on express
-  app[ctrl.method].apply(app, ctrlParams)
-}
-
-function buildOutEndpoints (ctrlList, app, dynamicRoutes) {
-  /**
-   * Static param routes.
-   */
-  for (let ctrlFolderName in ctrlList) {
-    const ctrlFolder = ctrlList[ctrlFolderName]
-    if (_.isObject(ctrlFolder)) {
-      for (let ctrlName in ctrlFolder) {
-        const ctrl = ctrlFolder[ctrlName]
-        if (ctrl.endpoint) {
-          if (ctrl.endpoint.indexOf(':') > -1) {
-            const endpointArray = ctrl.endpoint.split(':')
-            const dynamicLevel = endpointArray.length - 1
-            dynamicRoutes[dynamicLevel] = dynamicRoutes[dynamicLevel] || []
-            dynamicRoutes[dynamicLevel].push(ctrl)
-          } else {
-            constructEndpoint(ctrl, app)
-          }
-        }
-      }
-    }
-  }
-}
-function buildOutDynamicEndpoints (dynamicRoutes, app) {
-  /**
-   *  Dynamic param routes
-   */
-  for (let dynamicLevel in dynamicRoutes) {
-    const ctrls = dynamicRoutes[dynamicLevel]
-    for (let ctrlIndex in ctrls) {
-      const ctrl = ctrls[ctrlIndex]
-      if (ctrl.endpoint) {
-        constructEndpoint(ctrl, app)
-      }
-    }
-  }
-}
-
-function listAllFiles (dir, filelist) {
-  var path = path || require('path')
-  var fs = fs || require('fs')
-  var files = fs.readdirSync(dir)
-  filelist = filelist || []
-  files.forEach(function (file) {
-    if (fs.statSync(path.join(dir, file)).isDirectory()) {
-      filelist = listAllFiles(path.join(dir, file), filelist)
-    } else {
-      filelist.push(file)
-    }
-  })
-  return filelist
-}
-function isPublicFile (url, fileList) {
-  for (let fileIndex in fileList) {
-    if (url.indexOf(fileList[fileIndex]) > -1) return true
-  }
-  return false
 }

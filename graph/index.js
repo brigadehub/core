@@ -1,6 +1,6 @@
 const MTGQL = require('mongoose-schema-to-graphql').default
 const schemas = require('../schemas')
-console.log(schemas)
+// console.log(schemas)
 const _ = require('lodash')
 
 const mtgqlConfigs = {}
@@ -14,5 +14,5 @@ _.forEach(schemas, (schema, key) => {
   mtgqlSchemas[key] = {}
   mtgqlSchemas[key] = MTGQL(mtgqlConfigs[key])
 })
-console.log(mtgqlSchemas)
+// console.log(mtgqlSchemas)
 module.exports = mtgqlSchemas.users

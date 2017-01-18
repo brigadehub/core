@@ -1,9 +1,9 @@
-const Users = require('../../models/Users')
+const Checkins = require('../../models/Checkins')
 const mortimer = require('mortimer')
 const AfterResourceHook = require('./afterResourceHook')
-class UserResource extends AfterResourceHook {
+class CheckinsResource extends AfterResourceHook {
   constructor () {
-    super(Users)
+    super(Checkins)
   }
   // This method implements the counting routine.
   after (tag) {
@@ -18,16 +18,16 @@ class UserResource extends AfterResourceHook {
     return function (req, res, next) {
       // console.log('running', req.mrt.result, req.user)
       // TODO: edit req.mrt.result to sanitize returns
-      req.mrt.result = req.mrt.result.map((user) => {
-        user = user.toObject()
-        delete user.jwt
-        delete user.tokens
-        return user
+      req.mrt.result = req.mrt.result.map((checkin) => {
+        checkin = checkin.toObject()
+        delete checkin.user.jwt
+        delete checkin.user.tokens
+        return checkin
       })
       next()
     }
   }
 }
-const userResource = new UserResource(Users)
+const checkinResource = new CheckinsResource(Checkins)
 
-module.exports = userResource
+module.exports = checkinResource

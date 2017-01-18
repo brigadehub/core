@@ -1,9 +1,9 @@
-const Users = require('../../models/Users')
+const Projects = require('../../models/Projects')
 const mortimer = require('mortimer')
 const AfterResourceHook = require('./afterResourceHook')
-class UserResource extends AfterResourceHook {
+class ProjectsResource extends AfterResourceHook {
   constructor () {
-    super(Users)
+    super(Projects)
   }
   // This method implements the counting routine.
   after (tag) {
@@ -18,16 +18,14 @@ class UserResource extends AfterResourceHook {
     return function (req, res, next) {
       // console.log('running', req.mrt.result, req.user)
       // TODO: edit req.mrt.result to sanitize returns
-      req.mrt.result = req.mrt.result.map((user) => {
-        user = user.toObject()
-        delete user.jwt
-        delete user.tokens
-        return user
+      req.mrt.result = req.mrt.result.map((project) => {
+        project = project.toObject()
+        return project
       })
       next()
     }
   }
 }
-const userResource = new UserResource(Users)
+const projectResource = new ProjectsResource(Projects)
 
-module.exports = userResource
+module.exports = projectResource
