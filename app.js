@@ -10,9 +10,7 @@ const cookieParser = require('cookie-parser')
 const compress = require('compression')
 const favicon = require('serve-favicon')
 const session = require('express-session')
-const ejwt = require('express-jwt')
 const jwtsecret = process.env.JWT_SECRET || 'sUp3r$3creT'
-// const graphqlHTTP = require('express-graphql')
 const bodyParser = require('body-parser')
 const logger = require('morgan')
 const errorHandler = require('errorhandler')
@@ -28,14 +26,11 @@ const requireDir = require('require-dir')
 const pkg = require('./package.json')
 const isUrl = require('is-url')
 
-
 require('colors')
 
 let controllers
 let middleware
 const helpers = requireDir('./helpers', {recurse: true})
-let models
-let config
 let brigadeDetails
 let info = '[Brigadehub Core]'.yellow
 
@@ -55,15 +50,12 @@ module.exports = function (opts) {
 
   controllers = requireDir('./controllers', {recurse: true})
   middleware = requireDir('./middleware', {recurse: true})
-  models = require('./models')
-  config = requireDir('./config')
 
   var app = express()
 
   helpers.bootstrapDatabase(opts.brigade, startServer)
 
   function startServer (brigade) {
-    var Brigade = require('./models/Brigade')
     brigadeDetails = brigade
 
     const publicThemeLocation = brigade.theme.public ? path.join(process.cwd(), 'node_modules', `brigadehub-public-${brigadeDetails.theme.public}`) : false
@@ -97,7 +89,6 @@ module.exports = function (opts) {
     redirectBlacklist = redirectBlacklist.concat(publicFileList).concat(adminFileList)
     redirectBlacklist = redirectBlacklist.sort()
     redirectBlacklist = _.uniq(redirectBlacklist)
-
 
     /**
      * Express configuration.
@@ -233,9 +224,8 @@ module.exports = function (opts) {
     helpers.bootstrap.buildOutDynamicEndpoints(dynamicRoutes, middleware, app)
     if (adminThemeLocation) {
       helpers.bootstrap.buildOutDynamicEndpoints(dynamicRoutes, middleware, adminApp)
-      app.use('/admin', adminApp );
+      app.use('/admin', adminApp)
     }
-
 
     app.use(errorHandler())
     if (publicThemeLocation) {

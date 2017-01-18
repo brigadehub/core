@@ -1,5 +1,4 @@
 const Events = require('../../models/Events')
-const mortimer = require('mortimer')
 const AfterResourceHook = require('./afterResourceHook')
 class EventsResource extends AfterResourceHook {
   constructor () {
@@ -7,9 +6,6 @@ class EventsResource extends AfterResourceHook {
   }
   // This method implements the counting routine.
   after (tag) {
-    // console.log('arguments', arguments, this)
-
-    var that = this
     return function (req, res, next) {
       // console.log('running', req.mrt.result, req.user)
       // TODO: edit req.mrt.result to sanitize returns

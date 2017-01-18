@@ -1,23 +1,9 @@
 /**
  *  Dependencies
  */
-const requireDir = require('require-dir')
-const dump = require('mongodb-collection-dump')
-const archiver = require('archiver')
 const MongoClient = require('mongodb').MongoClient
-const moment = require('moment')
-const through = require('through')
 
-const fs = require('fs')
 const StreamZip = require('node-stream-zip')
-
-const Db = require('mongodb').Db
-const Server = require('mongodb').Server
-
-const dbArray = process.env.MONGODB_URI.split(':')
-const dbHost = dbArray[1].split('//').join('')
-const dbPort = parseInt(dbArray[2].split('/')[0], 10)
-const dbName = dbArray[2].split('/')[1]
 
 /**
  *  Exports
@@ -103,7 +89,7 @@ function readEntry (zip, entry, db) {
           return reject(e)
         }
         // console.log(entry)
-        resolve({name: entry.name, data: entryObj })
+        resolve({ name: entry.name, data: entryObj })
       })
       entryStream.on('error', function (err) {
         reject(err)

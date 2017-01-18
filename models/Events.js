@@ -18,7 +18,7 @@ eventsSchema.statics.fetchMeetupEvents = function (meetupid) {
         reject('We were unable to find any events attached to your Meetup account. Please check your Meetup.com credentials if you were expecting to import some events. ')
       } else {
         // remove all meetup events, we'll repopulate them
-        Events.find({ meetupid : { $ne: '' } }).remove().exec(function(err, data){
+        Events.find({ meetupid: { $ne: '' } }).remove().exec(function (err, data) {
           if (err) console.error(err)
           aggregate.forEach(function (outing) {
             Events.find({'meetupid': outing.id}, function (err, foundEvent) {
