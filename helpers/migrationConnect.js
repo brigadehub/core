@@ -1,6 +1,6 @@
 var mongoose = require('mongoose')
 module.exports = function (cb) {
-  mongoose.connect(process.env.MONGODB || process.env.MONGOLAB_URI, function (err) {
+  mongoose.connect(process.env.MONGODB_URI, function (err) {
     if (err) return cb(new Error(err))
     cb(null, disconnect)
   })

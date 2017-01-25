@@ -5,6 +5,10 @@ var LocalStrategy = require('passport-local').Strategy
 var GitHubStrategy = require('passport-github').Strategy
 var MeetupStrategy = require('passport-meetup').Strategy
 
+var jwt = require('jsonwebtoken')
+
+var jwtsecret = process.env.JWT_SECRET || 'sUp3r$3creT'
+
 var defaultHeaders = require('../../config/defaultGithubAPIHeaders')
 var User = require('../../models/Users')
 
@@ -21,13 +25,13 @@ passport.deserializeUser(function (id, done) {
 /**
  * Sign in with GitHub.
  */
+// console.log('process.env.GITHUB_ID',process.env.GITHUB_ID)
 passport.use(new GitHubStrategy({
-  clientID: process.env.GITHUB_ID,
-  clientSecret: process.env.GITHUB_SECRET,
+  clientID: process.env.GITHUB_ID || 'be1b409d62f41a56684c',
+  clientSecret: process.env.GITHUB_SECRET || '15b3e064eb512ed185f4e9a40e38cba5f1db594d',
   callbackURL: '/auth/github/callback',
   passReqToCallback: true
 }, function (req, accessToken, refreshToken, profile, done) {
-  console.log('logging in')
   var url = 'https://api.github.com/user/emails'
   var headers = _.cloneDeep(defaultHeaders)
   headers['Authorization'] += accessToken
@@ -37,11 +41,11 @@ passport.use(new GitHubStrategy({
   }
   request(options, function (err, response, body) {
     if (err) console.error(err)
-    console.log(response)
     if (!err && response.statusCode === 200) {
       var tokens = response.headers['x-oauth-scopes']
       profile.emails = JSON.parse(response.body)
       if (req.user) {
+        // console.log('req.user')
         User.findOne({ github: profile.id }, function (err, existingUser) {
           if (err) console.error(err)
           User.findById(req.user.id, function (err, user) {
@@ -76,6 +80,7 @@ passport.use(new GitHubStrategy({
                   superAdmin: true
                 }
               }
+              user.jwt = jwt.sign({github: user.github}, jwtsecret)
               user.save(function (err) {
                 if (err) console.error(err)
                 req.flash('info', { msg: 'GitHub authorization provided.' })
@@ -92,18 +97,21 @@ passport.use(new GitHubStrategy({
           })
         })
       } else {
+        // console.log('no req.user')
         User.findOne({ github: profile.id }, function (err, existingUser) {
           if (err) console.error(err)
           if (existingUser) {
+            // console.log('existing user')
             // think about updating?
-            console.log('no req.user, and user exists')
             if (!existingUser.createdAt || existingUser.createdAt === '') existingUser.createdAt = new Date('2016-10-17T02:20:59.089Z')
             existingUser.lastLoggedIn = new Date()
             existingUser.email = (_.filter(profile.emails, (email) => {
               return email.primary
             })[0] || {}).email
+            existingUser.jwt = jwt.sign({github: existingUser.github}, jwtsecret)
             return existingUser.save(function (err, user) {
               if (err) console.error(err)
+              // console.log('saved user')
               req.analytics.track({
                 userId: existingUser.username,
                 event: 'User Logged In',
@@ -114,7 +122,7 @@ passport.use(new GitHubStrategy({
               done(null, existingUser)
             })
           }
-          console.log("no req.user, and user doesn't exist")
+          // console.log('no existing user')
           // create this new user
           var user = new User()
           user.email = (_.filter(profile.emails, (email) => {
@@ -148,6 +156,7 @@ passport.use(new GitHubStrategy({
               user.teams.core = ['executive']
               user.teams.projects = ['website']
             }
+            user.jwt = jwt.sign({github: user.github}, jwtsecret)
             user.save(function (err) {
               if (err) console.error(err)
               req.analytics.track({
