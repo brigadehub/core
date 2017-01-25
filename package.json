@@ -112,7 +112,6 @@
   "devDependencies": {
     "ava": "^0.17.0",
     "babel-eslint": "^7.1.1",
-    "careful": "^1.1.0",
     "chai": "^3.4.1",
     "cz-conventional-changelog": "^1.1.6",
     "ghooks": "^1.2.1",
@@ -125,8 +124,7 @@
     "phantomjs-prebuilt": "2.1.11",
     "seedling": "0.0.10",
     "selenium-standalone": "latest",
-    "standard": "^8.6.0",
-    "validate-commit-msg": "^2.6.1"
+    "standard": "^8.6.0"
   },
   "standard": {
     "globals": [
@@ -143,45 +141,7 @@
     ]
   },
   "config": {
-    "validate-commit-msg": {
-      "helpMessage": "Commit message \n\n\t%s\nis not following this project's commit standards. Please refer to the contribution wiki (https://github.com/sfbrigade/brigadehub/wiki/Contributing#default-commit-message-format) for more details."
-    },
-    "careful": {
-      "prefixes": [
-        "feature",
-        "hotfix",
-        "release",
-        "refactor",
-        "bugfix",
-        "docs"
-      ],
-      "suggestions": {
-        "features": "feature",
-        "feat": "feature",
-        "fix": "bugfix",
-        "bug": "bugfix",
-        "releases": "release",
-        "doc": "docs"
-      },
-      "skip": [
-        "demo",
-        "develop"
-      ],
-      "disallowed": [
-        "edge",
-        "master"
-      ],
-      "banned": [
-        "wip"
-      ],
-      "seperator": "/",
-      "msgBranchBanned": "Branch name %s banned from push usage. Please refer to the contribution wiki (https://github.com/sfbrigade/brigadehub/wiki/Contributing#branch-naming-format) for more details.",
-      "msgPrefixNotAllowed": "Branch must have an appropriate prefix (feature, hotfix, bugfix, docs). Please refer to the contribution wiki (https://github.com/sfbrigade/brigadehub/wiki/Contributing#branch-naming-format) for more details.",
-      "msgSeperatorRequired": "Branch must have an appropriate prefix (feature, hotfix, bugfix, docs). Please refer to the contribution wiki (https://github.com/sfbrigade/brigadehub/wiki/Contributing#branch-naming-format) for more details."
-    },
     "ghooks": {
-      "pre-commit": "careful",
-      "commit-msg": "validate-commit-msg",
       "pre-push": "npm test"
     },
     "commitizen": {
