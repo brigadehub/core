@@ -1,12 +1,9 @@
 /**
  *  Dependencies
  */
-const dump = require('mongodb-collection-dump')
 const archiver = require('archiver')
-const MongoClient = require('mongodb').MongoClient
 const moment = require('moment')
 const _ = require('lodash')
-const through = require('through')
 
 /**
  *  Exports
