@@ -1,4 +1,4 @@
-var mongoose = require('mongoose')
+const mongoose = require('mongoose')
 mongoose.Promise = global.Promise
 
 const fetchGithubRepos = require('./fetchGithubRepos')
@@ -7,7 +7,7 @@ const postFind = require('./postFind')
 const postFindOne = require('./postFindOne')
 const publishToGithub = require('./publishToGithub')
 const fetchGithubUsers = require('./fetchGithubUsers')
-var projectsSchema = require('../../schemas/projects')
+const projectsSchema = new mongoose.Schema(require('../../schemas/projects'))
 
 projectsSchema.statics.fetchGithubRepos = fetchGithubRepos
 projectsSchema.statics.fetchGithubUsers = fetchGithubUsers

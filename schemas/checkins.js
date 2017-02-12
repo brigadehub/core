@@ -1,6 +1,4 @@
-const mongoose = require('mongoose')
-
-module.exports = new mongoose.Schema({
+module.exports = {
   date: { type: Date },
   name: { type: String, default: '' },
   email: { type: String, default: '' },
@@ -12,4 +10,4 @@ module.exports = new mongoose.Schema({
   lead: { type: Object, default: {} },
   user: { type: Object },
   userPresent: { type: Boolean }
-})
+}

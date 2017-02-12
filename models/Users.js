@@ -12,7 +12,7 @@ var defaultHeaders = {
   'User-Agent': 'BridageHub'
 }
 
-var userSchema = require('../schemas/users')
+var userSchema = new mongoose.Schema(require('../schemas/users'))
 
 /**
  * middleware.

@@ -1,6 +1,4 @@
-const mongoose = require('mongoose')
-
-module.exports = new mongoose.Schema({
+module.exports = {
   username: { type: String, unique: true },
   email: {type: String, default: ''},
   createdAt: {type: Date, default: ''},
@@ -36,4 +34,4 @@ module.exports = new mongoose.Schema({
     position: { type: String, default: '' },
     contactpagerank: { type: Number, default: 1 }
   }
-})
+}

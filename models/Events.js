@@ -3,7 +3,7 @@ mongoose.Promise = global.Promise
 
 var request = require('request')
 var uuid = require('node-uuid')
-var eventsSchema = require('../schemas/events')
+var eventsSchema = new mongoose.Schema(require('../schemas/events'))
 
 eventsSchema.methods.fetchGoogleEvents = function (cb) {
   cb(null, {})

@@ -8,7 +8,7 @@ var slug = require('slug')
 var getGhFile = require('github-get')
 var _ = require('lodash')
 
-var postsSchema = require('../schemas/posts')
+var postsSchema = new mongoose.Schema(require('../schemas/posts'))
 
 postsSchema.statics.syncJekyll = function (blogLocation, accessToken) {
   var self = this

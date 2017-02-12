@@ -85,7 +85,7 @@ build/docker:
 	docker build -t brigadehub/$(PACKAGENAME) .
 
 build/docker/run:
-	docker run -d --name brigadehub -p 80:5465 -e MONGODB=mongodb://192.168.99.100:27017/brigadehub-docker brigadehub/$(PACKAGENAME)
+	docker run -d --name brigadehub-suite -p 80:5465 -e MONGODB=mongodb://192.168.99.100:27017/brigadehub-docker brigadehub/$(PACKAGENAME)
 
 build/docker/images:
 	docker images brigadehub/$(PACKAGENAME)

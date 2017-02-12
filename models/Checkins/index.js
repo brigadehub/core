@@ -5,7 +5,7 @@ const Users = require('../Users')
 
 const syncUser = require('./syncUser')
 
-var checkinSchema = require('../../schemas/checkins')
+var checkinSchema = new mongoose.Schema(require('../../schemas/checkins'))
 const fetchUser = require('./fetchUser')
 
 checkinSchema.post('save', function (doc, next) {

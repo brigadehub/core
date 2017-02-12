@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-module.exports = new mongoose.Schema({
+module.exports = {
   name: {type: String, default: ''},
   slug: {type: String, default: ''},
   heroImage: {type: String, default: ''},
@@ -76,4 +76,4 @@ module.exports = new mongoose.Schema({
     }
   },
   auditLog: {type: Array, default: []}
-})
+}

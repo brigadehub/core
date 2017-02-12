@@ -4,7 +4,7 @@ mongoose.Promise = global.Promise
 var passport = require('passport')
 var getProp = require('@f/get-prop')
 
-var brigadeSchema = require('../schemas/brigade')
+var brigadeSchema = new mongoose.Schema(require('../schemas/brigade'))
 brigadeSchema.pre('save', function (next) {
   const brigade = this
   if (getProp('_strategies.github._oauth2', passport)) {
