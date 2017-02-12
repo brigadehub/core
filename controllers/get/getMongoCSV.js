@@ -3,6 +3,9 @@
  */
 const archiver = require('archiver')
 const moment = require('moment')
+const _ = require('lodash')
+const flatten = require('flat')
+const json2csv = require('json2csv')
 
 /**
  *  Exports
@@ -10,16 +13,15 @@ const moment = require('moment')
 
 module.exports = {
   method: 'get',
-  endpoint: '/api/db/backup',
+  endpoint: '/api/db/csv',
   jwt: true,
   authenticated: true,
   roles: ['core', 'superAdmin'],
   middleware: [],
-  controller: getMongoBackup
+  controller: getMongoCSV
 }
 
-function getMongoBackup (req, res, next) {
-  // console.log('getting here')
+function getMongoCSV (req, res, next) {
   const retrieveCalls = Object.keys(req.models).map(function (modelName) {
     return retrieveModel(modelName, req.models[modelName])
   })
@@ -31,6 +33,7 @@ function getMongoBackup (req, res, next) {
     })
     for (let collectionIndex in results) {
       const collection = results[collectionIndex]
+      let fields = []
       const collectionName = collection.modelName
       collection.results = collection.results.map((doc) => {
         delete doc._id
@@ -44,9 +47,15 @@ function getMongoBackup (req, res, next) {
           return doc
         })
       }
-      const jsonDump = collection.results.map(JSON.stringify).join('\n')
-      const jsonDumpFilename = `${collectionName}--${moment().format('YYYYMMDD-HHmmSS')}.jsonDump`
-      archive.append(jsonDump, { name: jsonDumpFilename })
+      const data = collection.results.map((doc) => {
+        const flatdoc = flatten(doc)
+        fields = fields.concat(Object.keys(flatdoc))
+        fields = _.uniq(fields)
+        return flatdoc
+      })
+      const csv = json2csv({ data, fields })
+      const csvFilename = `${collectionName}--${moment().format('YYYYMMDD-HHmmSS')}.csv`
+      archive.append(csv, { name: csvFilename })
     }
     archive.finalize()
     archive.on('finish', function () {})

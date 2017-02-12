@@ -1,6 +1,4 @@
-const mongoose = require('mongoose')
-
-module.exports = new mongoose.Schema({
+module.exports = {
   slug: {type: String, default: ''}, // this is the slug
   title: {type: String, required: true}, // Display title
   author: {type: String, default: ''},
@@ -17,4 +15,4 @@ module.exports = new mongoose.Schema({
     medium: {type: String, default: ''}
   },
   tags: {type: Array, default: []}
-})
+}

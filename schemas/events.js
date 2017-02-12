@@ -1,6 +1,4 @@
-const mongoose = require('mongoose')
-
-module.exports = new mongoose.Schema({
+module.exports = {
   // Follows fullcalendar's event object model, display options omitted:
   // http://fullcalendar.io/docs/event_data/Event_Object/
   id: {type: String, default: ''}, // this is the slug
@@ -14,4 +12,4 @@ module.exports = new mongoose.Schema({
   description: {type: String, default: ''},
   location: {type: String, default: ''},
   host: {type: String, default: ''}
-})
+}
