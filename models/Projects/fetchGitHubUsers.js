@@ -5,7 +5,7 @@ module.exports = function fetchGitHubUsers (users, cb) {
   var promiseArray = []
   function getUser (username) {
     return new Promise(function (resolve, reject) {
-      Users.findOne({'username': username}, function (err, foundUser) {
+      Users.findOne({ username }, function (err, foundUser) {
         if (err) console.error(err)
         if (foundUser) {
           resolve(foundUser)
