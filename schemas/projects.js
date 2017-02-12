@@ -1,3 +1,4 @@
+
 module.exports = {
   id: {type: String, default: ''}, // this is the slug - civic.sf.json + civic.dc.json
   oldId: {type: String, default: ''}, // this the old slug for updating name/id (needed in user team connections)

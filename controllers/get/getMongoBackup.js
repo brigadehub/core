@@ -18,8 +18,6 @@ module.exports = {
   controller: getMongoBackup
 }
 
-// this needs to be rewritten. streaming is dumb for this.
-
 function getMongoBackup (req, res, next) {
   // console.log('getting here')
   const retrieveCalls = Object.keys(req.models).map(function (modelName) {
