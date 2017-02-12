@@ -3,7 +3,6 @@
  */
 const archiver = require('archiver')
 const moment = require('moment')
-const _ = require('lodash')
 
 /**
  *  Exports
@@ -23,7 +22,7 @@ module.exports = {
 
 function getMongoBackup (req, res, next) {
   // console.log('getting here')
-  const retrieveCalls = Object.keys(req.models).map(function(modelName) {
+  const retrieveCalls = Object.keys(req.models).map(function (modelName) {
     return retrieveModel(modelName, req.models[modelName])
   })
   Promise.all(retrieveCalls).then((results) => {
@@ -34,14 +33,13 @@ function getMongoBackup (req, res, next) {
     })
     for (let collectionIndex in results) {
       const collection = results[collectionIndex]
-      let fields = []
       const collectionName = collection.modelName
       collection.results = collection.results.map((doc) => {
         delete doc._id
         delete doc.__v
         return doc
       })
-      if(collectionName === 'Users') {
+      if (collectionName === 'Users') {
         collection.results = collection.results.map((doc) => {
           delete doc.tokens
           delete doc.jwt
@@ -55,9 +53,9 @@ function getMongoBackup (req, res, next) {
     archive.finalize()
     archive.on('finish', function () {})
   })
-  .catch((err) => {
-    res.send(500, {error: true, message: err.toString()})
-  })
+    .catch((err) => {
+      res.send(500, {error: true, message: err.toString()})
+    })
 }
 
 function retrieveModel (modelName, model) {

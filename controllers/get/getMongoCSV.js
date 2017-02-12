@@ -7,7 +7,6 @@ const _ = require('lodash')
 const flatten = require('flat')
 const json2csv = require('json2csv')
 
-
 /**
  *  Exports
  */
@@ -23,7 +22,7 @@ module.exports = {
 }
 
 function getMongoCSV (req, res, next) {
-  const retrieveCalls = Object.keys(req.models).map(function(modelName) {
+  const retrieveCalls = Object.keys(req.models).map(function (modelName) {
     return retrieveModel(modelName, req.models[modelName])
   })
   Promise.all(retrieveCalls).then((results) => {
@@ -41,7 +40,7 @@ function getMongoCSV (req, res, next) {
         delete doc.__v
         return doc
       })
-      if(collectionName === 'Users') {
+      if (collectionName === 'Users') {
         collection.results = collection.results.map((doc) => {
           delete doc.tokens
           delete doc.jwt
@@ -61,9 +60,9 @@ function getMongoCSV (req, res, next) {
     archive.finalize()
     archive.on('finish', function () {})
   })
-  .catch((err) => {
-    res.send(500, {error: true, message: err.toString()})
-  })
+    .catch((err) => {
+      res.send(500, {error: true, message: err.toString()})
+    })
 }
 
 function retrieveModel (modelName, model) {
