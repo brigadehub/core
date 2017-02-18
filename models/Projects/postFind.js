@@ -1,6 +1,4 @@
-
 const fetchContributors = require('./fetchContributors')
-
 module.exports = function projectsPostFind (projects, next) {
   const fetchContributorCalls = []
   for (let index in projects) {

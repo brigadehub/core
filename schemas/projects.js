@@ -34,5 +34,9 @@ module.exports = {
   keywords: {type: Array, default: []}, // simple strings
   links: {type: Array, default: []}, // simple strings
   videos: {type: Array, default: []},
-  published: {type: Boolean, default: true}
+  published: {type: Boolean, default: true},
+
+  // for project active statuses
+  lastUpdated: {type: Date},
+  repositories: {type: Array, default: []}
 }
