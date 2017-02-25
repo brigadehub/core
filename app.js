@@ -61,8 +61,8 @@ module.exports = function (opts) {
     const publicThemeLocation = brigade.theme.public ? path.join(process.cwd(), 'node_modules', `brigadehub-public-${brigadeDetails.theme.public}`) : false
     const adminThemeLocation = brigade.theme.admin ? path.join(process.cwd(), 'node_modules', `brigadehub-admin-${brigadeDetails.theme.admin}`) : false
     let adminThemeConfig
-    if(adminThemeLocation){
-      try{
+    if (adminThemeLocation) {
+      try {
         adminThemeConfig = require(path.relative(__dirname, path.join(adminThemeLocation, 'brigadehub.json')))
         console.log(adminThemeConfig)
       } catch (e) {
@@ -70,7 +70,6 @@ module.exports = function (opts) {
         // discard for now
       }
     }
-
 
     const publicControllers = publicThemeLocation ? requireDir(`${publicThemeLocation}/controllers`, {recurse: true}) : {}
     const adminControllers = adminThemeLocation ? requireDir(`${adminThemeLocation}/controllers`, {recurse: true}) : {}
@@ -232,7 +231,7 @@ module.exports = function (opts) {
     dynamicRoutes = {}
     if (publicThemeLocation) helpers.bootstrap.buildOutEndpoints(publicControllers, middleware, app, dynamicRoutes)
     let adminStaticLoaded
-    if(adminThemeConfig && adminThemeConfig.spa) {
+    if (adminThemeConfig && adminThemeConfig.spa) {
       adminApp.use(express.static(path.join(adminThemeLocation, 'public'), { maxAge: 31557600000 }))
       adminStaticLoaded = true
     }
