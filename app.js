@@ -60,6 +60,17 @@ module.exports = function (opts) {
 
     const publicThemeLocation = brigade.theme.public ? path.join(process.cwd(), 'node_modules', `brigadehub-public-${brigadeDetails.theme.public}`) : false
     const adminThemeLocation = brigade.theme.admin ? path.join(process.cwd(), 'node_modules', `brigadehub-admin-${brigadeDetails.theme.admin}`) : false
+    let adminThemeConfig
+    if(adminThemeLocation){
+      try{
+        adminThemeConfig = require(path.relative(__dirname, path.join(adminThemeLocation, 'brigadehub.json')))
+        console.log(adminThemeConfig)
+      } catch (e) {
+        console.log(e)
+        // discard for now
+      }
+    }
+
 
     const publicControllers = publicThemeLocation ? requireDir(`${publicThemeLocation}/controllers`, {recurse: true}) : {}
     const adminControllers = adminThemeLocation ? requireDir(`${adminThemeLocation}/controllers`, {recurse: true}) : {}
@@ -220,10 +231,15 @@ module.exports = function (opts) {
     // but do for everything else
     dynamicRoutes = {}
     if (publicThemeLocation) helpers.bootstrap.buildOutEndpoints(publicControllers, middleware, app, dynamicRoutes)
-    if (adminThemeLocation) helpers.bootstrap.buildOutEndpoints(adminControllers, middleware, adminApp, dynamicRoutes)
+    let adminStaticLoaded
+    if(adminThemeConfig && adminThemeConfig.spa) {
+      adminApp.use(express.static(path.join(adminThemeLocation, 'public'), { maxAge: 31557600000 }))
+      adminStaticLoaded = true
+    }
+    if (adminThemeLocation) helpers.bootstrap.buildOutEndpoints(adminControllers, middleware, adminApp, dynamicRoutes, adminThemeConfig)
     helpers.bootstrap.buildOutDynamicEndpoints(dynamicRoutes, middleware, app)
     if (adminThemeLocation) {
-      helpers.bootstrap.buildOutDynamicEndpoints(dynamicRoutes, middleware, adminApp)
+      helpers.bootstrap.buildOutDynamicEndpoints(dynamicRoutes, middleware, adminApp, adminThemeConfig)
       app.use('/admin', adminApp)
     }
 
@@ -251,7 +267,7 @@ module.exports = function (opts) {
       app.use(favicon(path.join(publicThemeLocation, 'public', 'favicon.png')))
       app.use(express.static(path.join(publicThemeLocation, 'public'), { maxAge: 31557600000 }))
     }
-    if (adminThemeLocation) adminApp.use(express.static(path.join(adminThemeLocation, 'public'), { maxAge: 31557600000 }))
+    if (!adminStaticLoaded && adminThemeLocation) adminApp.use(express.static(path.join(adminThemeLocation, 'public'), { maxAge: 31557600000 }))
     app.listen(app.get('port'), function () {
       console.log(`${info} Server listening on port ${app.get('port')}`)
     })

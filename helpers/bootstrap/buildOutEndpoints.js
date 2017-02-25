@@ -1,6 +1,6 @@
 const _ = require('lodash')
 const constructEndpoint = require('./constructEndpoint')
-module.exports = function buildOutEndpoints (ctrlList, middleware, app, dynamicRoutes) {
+module.exports = function buildOutEndpoints (ctrlList, middleware, app, dynamicRoutes, themeConfig) {
   /**
    * Static param routes.
    */
@@ -16,7 +16,7 @@ module.exports = function buildOutEndpoints (ctrlList, middleware, app, dynamicR
             dynamicRoutes[dynamicLevel] = dynamicRoutes[dynamicLevel] || []
             dynamicRoutes[dynamicLevel].push(ctrl)
           } else {
-            constructEndpoint(ctrl, middleware, app)
+            constructEndpoint(ctrl, middleware, app, themeConfig)
           }
         }
       }

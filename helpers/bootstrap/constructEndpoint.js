@@ -6,7 +6,7 @@ const fromHeaderOrQuerystring = require('../fromHeaderOrQuerystring')
  * @param  {Object} ctrl controller object
  * @param  {Object} app  Express Application
  */
-function constructEndpoint (ctrl, middleware, app) {
+function constructEndpoint (ctrl, middleware, app, themeConfig) {
   let ctrlParams = [ctrl.endpoint]
   const jwtsecret = app.get('jwtsecret')
   if (ctrl.jwt) {
@@ -30,6 +30,7 @@ function constructEndpoint (ctrl, middleware, app) {
   // set final controller
   ctrlParams.push(ctrl.controller)
 
+  if (themeConfig && themeConfig.spa && !ctrl.spa) return
   // apply configuration and run on express
   app[ctrl.method].apply(app, ctrlParams)
 }
