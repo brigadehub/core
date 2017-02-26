@@ -9,5 +9,6 @@ module.exports = {
   skills: { type: Array, default: [] },
   lead: { type: Object, default: {} },
   user: { type: Object },
-  userPresent: { type: Boolean }
+  userPresent: { type: Boolean },
+  event: { type: String, default: '' }
 }
