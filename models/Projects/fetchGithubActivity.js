@@ -1,13 +1,12 @@
 const _ = require('lodash')
 const moment = require('moment')
-const emojify = require("emojify-tag")
-const Brigade = require('../Brigade')
+const emojify = require('emojify-tag')
 const Users = require('../Users')
 
 const request = require('superagent')
 
 module.exports = function fetchGithubActivity (project) {
-  return new Promise ((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     project.lastCheckedGithub = project.lastCheckedGithub || 1
     const checkTimeframe = moment(new Date()).unix() - moment(project.lastCheckedGithub).unix()
     console.log(checkTimeframe)
@@ -15,12 +14,12 @@ module.exports = function fetchGithubActivity (project) {
     if (project.checkFromGithub && project.lastCheckedGithub && checkTimeframe >= 86400) { // 86400 seconds = 24 hours
       console.log('this')
       Users.findOne({username: project.checkFromGithubAs}, (err, results) => {
-        if (err) return reject (err)
+        if (err) return reject(err)
         if (!results) return reject(`No user with username ${project.checkFromGithubAs} found`)
         let token = _.find(results.tokens, {kind: 'github'})
         if (!token) return reject(`User ${project.checkFromGithubAs} does not have a github token`)
         token = token.accessToken
-        const getActivityCalls = project.repositories.map(parseOwnerRepo).map((repo)=>getGithubActivity(repo, token))
+        const getActivityCalls = project.repositories.map(parseOwnerRepo).map((repo) => getGithubActivity(repo, token))
         Promise.all(getActivityCalls).then((results) => {
           let finalActivity = []
           finalActivity = finalActivity.concat.apply(finalActivity, results)
@@ -31,8 +30,9 @@ module.exports = function fetchGithubActivity (project) {
           resolve(finalActivity)
         }).catch(reject)
       })
+    } else {
+      return resolve()
     }
-    else resolve()
   })
 }
 
@@ -47,7 +47,7 @@ function parseOwnerRepo (url) {
 }
 
 function getGithubActivity (ownerRepo, token) {
-  return new Promise ((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const commitsUrl = `https://api.github.com/repos/${ownerRepo}/commits`
     const commentsUrl = `https://api.github.com/repos/${ownerRepo}/issues/comments?sort=created&direction=desc`
     let commits
@@ -55,7 +55,7 @@ function getGithubActivity (ownerRepo, token) {
     request.get(commitsUrl)
       .set('Authorization', `Bearer ${token}`)
       .set('User-Agent', `Brigadehub Core`)
-      .end((err,results) => {
+      .end((err, results) => {
         if (err) return reject(err)
         commits = results.body
         commits = commits.map((commit) => {
@@ -67,14 +67,14 @@ function getGithubActivity (ownerRepo, token) {
             commit_message: emojify`${commit.commit.message}`,
             committer: {
               name: commit.commit.author.name,
-              email: commit.commit.author.email,
+              email: commit.commit.author.email
             }
           }
         })
         request.get(commentsUrl)
           .set('Authorization', `Bearer ${token}`)
           .set('User-Agent', `Brigadehub Core`)
-          .end((err,results) => {
+          .end((err, results) => {
             if (err) return reject(err)
             comments = results.body
             comments = comments.map((comment) => {
@@ -87,7 +87,7 @@ function getGithubActivity (ownerRepo, token) {
                 commenter: {
                   username: comment.user.login,
                   avatar: comment.user.avatar_url,
-                  url: comment.user.html_url,
+                  url: comment.user.html_url
                 }
               }
             })

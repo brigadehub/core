@@ -18,10 +18,9 @@ module.exports = function projectsPostFindOne (project, next) {
       console.log(err)
       return fetchMembers(project, next)
     })
-
 }
 
-function fetchMembers(project, next) {
+function fetchMembers (project, next) {
   return fetchContributors(project).then(function (results) {
     project.leads = results.leads
     project.members = results.members

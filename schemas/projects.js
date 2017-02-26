@@ -1,4 +1,3 @@
-
 module.exports = {
   id: {type: String, default: ''}, // this is the slug - civic.sf.json + civic.dc.json
   oldId: {type: String, default: ''}, // this the old slug for updating name/id (needed in user team connections)
@@ -40,7 +39,7 @@ module.exports = {
   lastUpdated: {type: Date},
   checkFromGithub: {type: Boolean, default: false},
   checkFromGithubAs: {type: String, default: ''},
-  lastCheckedFromGithub: {type:Date},
-  recentGithubActivity: {type:Array, default: []},
-  repositories: {type: Array, default: []},
+  lastCheckedFromGithub: {type: Date},
+  recentGithubActivity: {type: Array, default: []},
+  repositories: {type: Array, default: []}
 }
