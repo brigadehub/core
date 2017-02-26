@@ -5,6 +5,7 @@ const clearContributors = require('./clearContributors')
 
 module.exports = function projectsPreSave (next) {
   const project = this
+  project.lastUpdated = new Date()
 
   // remove any currently saved contributors, we have a new list
   clearContributors(project)
