@@ -8,9 +8,12 @@ const request = require('superagent')
 
 module.exports = function fetchGithubActivity (project) {
   return new Promise ((resolve, reject) => {
+    project.lastCheckedGithub = project.lastCheckedGithub || 1
     const checkTimeframe = moment(new Date()).unix() - moment(project.lastCheckedGithub).unix()
+    console.log(checkTimeframe)
     // if (true) { // 86400 seconds = 24 hours
     if (project.checkFromGithub && project.lastCheckedGithub && checkTimeframe >= 86400) { // 86400 seconds = 24 hours
+      console.log('this')
       Users.findOne({username: project.checkFromGithubAs}, (err, results) => {
         if (err) return reject (err)
         if (!results) return reject(`No user with username ${project.checkFromGithubAs} found`)
