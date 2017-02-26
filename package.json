@@ -67,6 +67,7 @@
     "db-migrate": "^0.10.0-beta.20",
     "db-migrate-mongodb": "^1.2.1",
     "dotenv": "^1.2.0",
+    "emojify-tag": "^1.0.0",
     "errorhandler": "^1.4.2",
     "express": "^4.13.3",
     "express-flash": "^0.0.2",

@@ -75,5 +75,8 @@ module.exports = {
       password: {type: String, default: ''}
     }
   },
-  auditLog: {type: Array, default: []}
+  auditLog: {type: Array, default: []},
+
+  // for dynamic active flag on projects
+  lastCheckedGithub: {type: Date}
 }

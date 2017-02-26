@@ -38,5 +38,9 @@ module.exports = {
 
   // for project active statuses
   lastUpdated: {type: Date},
-  repositories: {type: Array, default: []}
+  checkFromGithub: {type: Boolean, default: false},
+  checkFromGithubAs: {type: String, default: ''},
+  lastCheckedFromGithub: {type:Date},
+  recentGithubActivity: {type:Array, default: []},
+  repositories: {type: Array, default: []},
 }
