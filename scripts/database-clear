@@ -12,7 +12,8 @@ var fs = require('fs')
  *
  * Default path: .env
  */
-require('../dotenv.js')()
+ const dotEnvPath = path.relative(__dirname, path.join(process.cwd(), './dotenv.js'))
+ require(dotEnvPath)()
 
 // Connection URL
 var url = process.env.MONGODB_URI
