@@ -9,10 +9,8 @@ module.exports = function fetchGithubActivity (project) {
   return new Promise((resolve, reject) => {
     project.lastCheckedGithub = project.lastCheckedGithub || 1
     const checkTimeframe = moment(new Date()).unix() - moment(project.lastCheckedGithub).unix()
-    console.log(checkTimeframe)
     // if (true) { // 86400 seconds = 24 hours
     if (project.checkFromGithub && project.lastCheckedGithub && checkTimeframe >= 86400) { // 86400 seconds = 24 hours
-      console.log('this')
       Users.findOne({username: project.checkFromGithubAs}, (err, results) => {
         if (err) return reject(err)
         if (!results) return reject(`No user with username ${project.checkFromGithubAs} found`)
@@ -24,9 +22,7 @@ module.exports = function fetchGithubActivity (project) {
           let finalActivity = []
           finalActivity = finalActivity.concat.apply(finalActivity, results)
           finalActivity = _.sortBy(finalActivity, (action) => new Date(action.date)).reverse()
-          console.log(finalActivity.map(({ownerRepo, date, type}) => ({ownerRepo, date, type})))
           finalActivity = _.take(finalActivity, 10)
-          console.log(finalActivity.map(({ownerRepo, date, type}) => ({ownerRepo, date, type})))
           resolve(finalActivity)
         }).catch(reject)
       })
@@ -42,7 +38,6 @@ function parseOwnerRepo (url) {
     ownerRepo = _.take(ownerRepo.split('/'), 2).join('/')
     return ownerRepo
   }
-  console.log(url)
   throw new Error('Repo URL is invalid!')
 }
 
@@ -93,9 +88,7 @@ function getGithubActivity (ownerRepo, token) {
             })
             let activity = commits.concat(comments)
             activity = _.sortBy(activity, (action) => new Date(action.date)).reverse()
-            console.log(activity.map(({ownerRepo, date, type}) => ({ownerRepo, date, type})))
             activity = _.take(activity, 10)
-            console.log(activity.map(({ownerRepo, date, type}) => ({ownerRepo, date, type})))
             resolve(activity)
           })
       })

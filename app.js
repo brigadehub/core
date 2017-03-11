@@ -97,13 +97,13 @@ module.exports = function (opts) {
     app.set('port', process.env.PORT || 5465)
     app.set('jwtsecret', jwtsecret)
     app.set('query parser', 'simple') // for mortimer mongoose rest apis
+    app.use(flash())
 
     // set theme view settings if present
     let adminApp
-    if (publicThemeLocation || adminThemeLocation) {
+    if (publicThemeLocation) {
       app.set('views', path.join(process.cwd(), 'node_modules'))
       app.set('view engine', 'pug')
-      app.use(flash())
       app.use(sass({
         src: path.join(publicThemeLocation, 'public'),
         dest: path.join(publicThemeLocation, 'public'),
@@ -116,7 +116,6 @@ module.exports = function (opts) {
       adminApp = express()
       adminApp.set('views', path.join(process.cwd(), 'node_modules'))
       adminApp.set('view engine', 'pug')
-      adminApp.use(flash())
       adminApp.use(sass({
         src: path.join(adminThemeLocation, 'public'),
         dest: path.join(adminThemeLocation, 'public'),
