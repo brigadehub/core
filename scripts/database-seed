@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 var seeder = require('mongoose-seed')
-require('../dotenv.js')()
+const dotEnvPath = path.relative(__dirname, path.join(process.cwd(), './dotenv.js'))
+require(dotEnvPath)()
 
 var requireDir = require('require-dir')
 var seeds = {

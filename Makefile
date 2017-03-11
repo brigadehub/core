@@ -1,27 +1,36 @@
-COREPATH ?= .
-PACKAGENAME ?= brigadehub-core
-
 start:
 	node standalone.js
 
 start/develop:
 	@echo make install
 	@$(MAKE) install
-	npm run nodemon -- standalone.js
+	yarn run nodemon -- standalone.js
 
 start/develop/mongo:
 	@echo make install
 	@$(MAKE) install
 	mongod -d
-	npm run nodemon -- standalone.js
+	yarn run nodemon -- standalone.js
+
+install:
+	yarn install
+
+build:
+	@echo 'no build task specified.'
 
 lint:
-	npm run standard
+	yarn run standard
 
 link:
-	npm link brigadehub-public-c4sf
-	npm link brigadehub-admin-c4sf
-	npm link
+	yarn link
+
+upstream/set:
+	git remote add upstream https://github.com/brigadehub/core.git
+
+upstream/sync:
+	git fetch upstream
+	git checkout master
+	git merge upstream/master
 
 test:
 	@echo make lint
@@ -32,71 +41,18 @@ test:
 	@$(MAKE) test/e2e
 
 test/unit:
-	npm run ava -- **/*.unit.js
+	yarn run ava -- **/*.unit.js
 
 test/e2e:
-	# @echo make test/e2e/selenium/install
-	# @$(MAKE) test/e2e/selenium/install
-	# @echo make test/e2e/selenium/start
-	# @$(MAKE) test/e2e/selenium/start
 	echo 'no end-to-end tests available.'
 
 test/e2e/selenium/install:
-	npm run selenium-standalone install
+	yarn run selenium-standalone install
 
 test/e2e/selenium/start:
-	npm run selenium-standalone start&
+	yarn run selenium-standalone start&
 
 test/e2e/selenium/stop:
 	pkill -f selenium-standalone
 
-db/clear:
-	$(COREPATH)/scripts/database-clear
-
-db/seed:
-	@echo make db/bootstrap
-	@$(MAKE) db/bootstrap
-	$(COREPATH)/scripts/database-seed
-
-db/bootstrap:
-	$(COREPATH)/scripts/database-bootstrap
-
-db/migrate/up:
-	@echo make db/bootstrap
-	@$(MAKE) db/bootstrap
-	npm run db-migrate -- --config $(COREPATH)/config/database.json --migrations-dir $(COREPATH)/migrations up
-
-db/migrate/down:
-	@echo make db/bootstrap
-	@$(MAKE) db/bootstrap
-	npm run db-migrate -- --config $(COREPATH)/config/database.json --migrations-dir $(COREPATH)/migrations down
-
-install:
-	npm install
-	@echo make db/migrate/up
-	@$(MAKE) db/migrate/up
-
-install/clean:
-	rm -rf node_modules
-	@echo make install
-	@$(MAKE) install
-
-build/docker:
-	docker build -t brigadehub/$(PACKAGENAME) .
-
-build/docker/run:
-	docker run -d --name brigadehub-suite -p 80:5465 -e MONGODB=mongodb://192.168.99.100:27017/brigadehub-docker brigadehub/$(PACKAGENAME)
-
-build/docker/images:
-	docker images brigadehub/$(PACKAGENAME)
-
-build/docker/tag:
-	echo "docker tag hash brigadehub/$(PACKAGENAME):release"
-
-build/docker/push:
-	docker push brigadehub/$(PACKAGENAME)
-
-build/docker/untag:
-	echo "docker rmi brigadehub/$(PACKAGENAME):release"
-
-.PHONY: start lint test db install build link
+.PHONY: start lint test build link upstream install

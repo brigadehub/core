@@ -1,6 +1,8 @@
 #! /usr/bin/env node
 
-require('../dotenv.js')()
+const path = require('path')
+const dotEnvPath = path.relative(__dirname, path.join(process.cwd(), './dotenv.js'))
+require(dotEnvPath)()
 require('../helpers/bootstrapDatabase')(null, function(){
   process.exit()
 })
