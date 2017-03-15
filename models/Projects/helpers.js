@@ -49,7 +49,7 @@ module.exports.getRepoCivicJson = function getRepoCivicJson (url, user, callback
       }
       return callback(null, civicJS)
     }
-    callback({msg: 'Status Code not 200', response: response, body: body})
+    callback({msg: 'Status Code not 200', response: '', body: body})
   })
 }
 module.exports.getRepoREADME = function getRepoREADME (url, user, callback) {
@@ -72,7 +72,7 @@ module.exports.getRepoREADME = function getRepoREADME (url, user, callback) {
       }
       return callback(null, readme)
     }
-    callback({msg: 'Status Code not 200', response: response, body: body})
+    callback({msg: 'Status Code not 200', response: '', body: body})
   })
 }
 module.exports.createUpdateProjectData = function createUpdateProjectData (project, original, brigade) {
