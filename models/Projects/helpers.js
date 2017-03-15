@@ -44,13 +44,12 @@ module.exports.getRepoCivicJson = function getRepoCivicJson (url, user, callback
         var cj = new Buffer(parsed.content, 'base64')
         var civicJSON = cj.toString()
         civicJS = JSON.parse(civicJSON)
-        console.log('civicJSON', civicJS)
       } catch (e) {
         console.warn('Error occured', e)
       }
       return callback(null, civicJS)
     }
-    callback({msg: 'Status Code not 200', response: response, body: body})
+    callback({msg: 'Status Code not 200', response: 'getRepoCivicJson', body: body})
   })
 }
 module.exports.getRepoREADME = function getRepoREADME (url, user, callback) {
@@ -68,17 +67,15 @@ module.exports.getRepoREADME = function getRepoREADME (url, user, callback) {
         var parsed = JSON.parse(body)
         var rm = new Buffer(parsed.content, 'base64')
         readme = rm.toString()
-        console.log('readme', readme)
       } catch (e) {
         console.warn('Error occured', e)
       }
       return callback(null, readme)
     }
-    callback({msg: 'Status Code not 200', response: response, body: body})
+    callback({msg: 'Status Code not 200', response: 'ReadMe Respone', body: body})
   })
 }
 module.exports.createUpdateProjectData = function createUpdateProjectData (project, original, brigade) {
-  console.log('readme', project.readme)
   original = original || {}
   project.json = project.json || {}
   project.json.needs = project.json.needs || []
