@@ -145,7 +145,7 @@
   },
   "config": {
     "ghooks": {
-      "pre-push": "npm test"
+      "pre-push": "echo this should run npm test"
     },
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"

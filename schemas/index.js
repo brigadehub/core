@@ -9,7 +9,7 @@ const events = require('./events')
 const posts = require('./posts')
 const checkins = require('./checkins')
 
-function stripForMongoose(schema) {
+function stripForMongoose (schema) {
   console.log(schema)
   schema = flatten(schema, { maxDepth: 2 })
   console.log(schema)
