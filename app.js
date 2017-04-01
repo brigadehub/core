@@ -204,7 +204,7 @@ module.exports = function (opts) {
      */
 
     function inspectAuth (req, res, next) {
-      const maskSecret = (secret) => secret.replace(/^[\d-\s]+(?=\d{4})/, "************")
+      const maskSecret = (secret) => secret.replace(/.(?=.{4,}$)/g, '*')
       console.log(`[Github Auth] initiated`)
       console.log(`[Github Auth] [Settings] client_id: ${res.locals.brigade.auth.github.clientId} client_secret: ${maskSecret(res.locals.brigade.auth.github.clientSecret)} url: ${res.locals.brigade.url}`)
       console.log(`[Github Auth] [Passport] client_id: ${passport._strategies.github._oauth2._clientId} client_secret: ${maskSecret(passport._strategies.github._oauth2._clientSecret)} url: ${passport._strategies.github._callbackURL}`)
