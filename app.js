@@ -51,7 +51,19 @@ module.exports = function (opts) {
   controllers = requireDir('./controllers', {recurse: true})
   middleware = requireDir('./middleware', {recurse: true})
 
+  function requireHTTPS (req, res, next) {
+    // The 'x-forwarded-proto' check is for Heroku
+    if (!req.secure && req.get('x-forwarded-proto') !== 'https' && process.env.NODE_ENV !== 'development') {
+      return res.redirect('https://' + req.get('host') + req.url)
+    }
+    next()
+  }
+
   var app = express()
+
+  if (opts.forceSSL) {
+    app.use(requireHTTPS)
+  }
 
   helpers.bootstrapDatabase(opts.brigade, startServer)
 
