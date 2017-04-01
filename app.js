@@ -203,10 +203,17 @@ module.exports = function (opts) {
      * Authorization routes
      */
 
-    app.get('/auth/github', passport.authenticate('github', {
+    function inspectAuth (req, res, next) {
+      const maskSecret = (secret) => secret.replace(/^[\d-\s]+(?=\d{4})/, "************")
+      console.log(`[Github Auth] initiated`)
+      console.log(`[Github Auth] [Settings] client_id: ${res.locals.brigade.auth.github.clientId} client_secret: ${maskSecret(res.locals.brigade.auth.github.clientSecret)} url: ${res.locals.brigade.url}`)
+      console.log(`[Github Auth] [Passport] client_id: ${passport._strategies.github._oauth2._clientId} client_secret: ${maskSecret(passport._strategies.github._oauth2._clientSecret)} url: ${passport._strategies.github._callbackURL}`)
+      next()
+    }
+    app.get('/auth/github', inspectAuth, passport.authenticate('github', {
       scope: [ 'user:email', 'public_repo' ]
     }))
-    app.get('/auth/github/elevate', middleware.passport.elevateScope)
+    app.get('/auth/github/elevate', inspectAuth, middleware.passport.elevateScope)
     app.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), function (req, res) {
       res.redirect(req.session.returnTo || '/')
     })
