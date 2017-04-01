@@ -1,4 +1,4 @@
-const { pick } = require('lodash')
+const { pick, forEach } = require('lodash')
 const flatten = require('flat')
 const unflatten = flatten.unflatten
 
@@ -9,14 +9,27 @@ const events = require('./events')
 const posts = require('./posts')
 const checkins = require('./checkins')
 
+const nested = require('../helpers/nested')
+
 function stripForMongoose (schema) {
-  console.log(schema)
-  schema = flatten(schema, { maxDepth: 2 })
-  console.log(schema)
-  schema = pick(schema, ['type', 'default'])
-  console.log(schema)
-  schema = unflatten(schema)
-  console.log(schema)
+  const newSchema = {}
+  schema = nested.flatten(schema)
+  for (let keyIndex in Object.keys(schema)) {
+    const key = Object.keys(schema)[keyIndex]
+    const value = schema[key]
+    let newKey = key.split('.')
+    const subKey = newKey.pop()
+    newKey = newKey.join('.')
+    newSchema[newKey] = newSchema[newKey] || {}
+    newSchema[newKey][subKey] = value
+  }
+  console.log('schema', schema)
+  console.log('newSchema', newSchema)
+  schema = newSchema
+  schema = forEach(schema, (field, key) => schema[key] = pick(field, ['type', 'default']))
+  console.log('pick', schema)
+  schema = nested.unflatten(schema)
+  console.log('unflatten', schema)
   return schema
 }
 
