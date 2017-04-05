@@ -24,7 +24,7 @@ const flatten = function (data) {
 const unflatten = function (data) {
   'use strict'
   if (Object(data) !== data || Array.isArray(data)) return data
-  const regex = /\.?([^.[\]]+)|\[(\d+)\]/g
+  const regex = /\.?([^.[\]]+)|\[(\d+)]/g
   const resultholder = {}
   for (let p in data) {
     let cur = resultholder
