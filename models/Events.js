@@ -39,7 +39,7 @@ eventsSchema.statics.fetchMeetupEvents = function (meetupid) {
   })
 }
 
-function getEvents(meetupid, callback) {
+function getEvents (meetupid, callback) {
   request(meetupid, function (error, response, body) {
     if (!error && response.statusCode === 200) {
       var parsed = JSON.parse(body)
@@ -50,7 +50,7 @@ function getEvents(meetupid, callback) {
   })
 }
 
-function createEventData(event) {
+function createEventData (event) {
   var eventData = {}
   var unixtime = Math.floor(event.time / 1000)
   eventData.meetupid = event.id
