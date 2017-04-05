@@ -12,7 +12,7 @@ module.exports = {
     default: '',
     description: 'Name of your brigade. Shows in the title of the browser and in social media.',
     label: 'Brigade Name',
-    public: true,
+    public: true
   },
   slug: {
     type: String,
@@ -40,12 +40,12 @@ module.exports = {
     day: {
       type: String,
       default: '',
-      description: '[DEPRECATED] Day of the week to checkin. Superceded by event-specific checkins',
+      description: '[DEPRECATED] Day of the week to checkin. Superceded by event-specific checkins'
     },
     urlLink: {
       type: String,
       default: '',
-      description: '[DEPRECATED] Link to checkin. Superceded by event-specific checkins',
+      description: '[DEPRECATED] Link to checkin. Superceded by event-specific checkins'
     }
   },
   location: {
@@ -94,7 +94,7 @@ module.exports = {
     default: '',
     description: 'Slug for Github organization (if applicable). e.g. sfbrigade',
     label: 'Github Org',
-    public: true,
+    public: true
   },
   slack: {
     type: String,
@@ -107,12 +107,12 @@ module.exports = {
   slackcount: {
     type: Number,
     default: 0,
-    description: '[DEPRECATED] Metric: Number of slack users',
+    description: '[DEPRECATED] Metric: Number of slack users'
   },
   brigadecount: {
     type: Number,
     default: 0,
-    description: '[DEPRECATED] Metric: Number of brigades in the area',
+    description: '[DEPRECATED] Metric: Number of brigades in the area'
   },
   meetup: {
     type: String,
@@ -152,7 +152,7 @@ module.exports = {
     type: Array,
     default: [],
     description: 'List of url redirects for the website. You can link old urls to new ones, or alias urls here.',
-    public:true,
+    public: true,
     label: 'Redirect URLs',
     fieldType: 'list:url-url',
     futureModel: 'application'
@@ -162,7 +162,7 @@ module.exports = {
       type: mongoose.Schema.Types.Mixed,
       default: false,
       description: 'Slug of NPM registered public theme. e.g "c4sf" or "opensavannah"',
-      public:true,
+      public: true,
       disabled: true,
       label: 'Public Theme Slug',
       futureModel: 'application'
@@ -171,7 +171,7 @@ module.exports = {
       type: mongoose.Schema.Types.Mixed,
       default: false,
       description: 'Slug of NPM registered public theme. e.g "c4sf" or "opensavannah"',
-      public:true,
+      public: true,
       disabled: true,
       label: 'Admin Theme Slug',
       futureModel: 'application'
@@ -179,7 +179,7 @@ module.exports = {
     slug: {
       type: String,
       default: '',
-      description: '[DEPRECATED] the full string NPM module name of theme.',
+      description: '[DEPRECATED] the full string NPM module name of theme.'
     },
     logo: {
       type: String,
@@ -273,7 +273,7 @@ module.exports = {
     description: 'List of sponsors of the brigade',
     label: 'Sponsors',
     fieldType: 'list:string-imageUrl-url',
-    public: true,
+    public: true
   },
   landingstats: {
     type: Array,
