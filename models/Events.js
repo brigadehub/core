@@ -61,7 +61,7 @@ function createEventData (event) {
 
   // check if venue is null
   if (event.venue) {
-    eventData.location = event.venue.address_1 + ' ' + event.venue.city || ''
+    eventData.location = `${event.venue.address_1 || ''} ${event.venue.city || ''}`.trim()
     eventData.host = event.venue.name || ''
   }
 
