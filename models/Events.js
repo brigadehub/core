@@ -58,8 +58,13 @@ function createEventData (event) {
   eventData.title = event.name || ''
   eventData.url = event.event_url || ''
   eventData.description = event.description || ''
-  eventData.location = event.venue.address_1 + ' ' + event.venue.city || ''
-  eventData.host = event.venue.name || ''
+
+  // check if venue is null
+  if (event.venue) {
+    eventData.location = event.venue.address_1 + ' ' + event.venue.city || ''
+    eventData.host = event.venue.name || ''
+  }
+
   eventData.start = unixtime || ''
   if (event.duration) {
     eventData.end = unixtime + Math.floor(event.duration / 1000)
