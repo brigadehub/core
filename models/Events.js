@@ -21,7 +21,7 @@ eventsSchema.statics.fetchMeetupEvents = function (meetupid) {
         Events.find({ meetupid: { $ne: '' } }).remove().exec(function (err, data) {
           if (err) console.error(err)
           aggregate.forEach(function (outing) {
-            Events.find({'meetupid': outing.id}, function (err, foundEvent) {
+            Events.find({ 'meetupid': outing.id }, function (err, foundEvent) {
               if (foundEvent.length < 1) {
                 if (err) console.error(err)
                 var eventData = createEventData(outing)
@@ -58,8 +58,13 @@ function createEventData (event) {
   eventData.title = event.name || ''
   eventData.url = event.event_url || ''
   eventData.description = event.description || ''
-  eventData.location = event.venue.address_1 + ' ' + event.venue.city || ''
-  eventData.host = event.venue.name || ''
+
+  // check if venue is null
+  if (event.venue) {
+    eventData.location = `${event.venue.address_1 || ''} ${event.venue.city || ''}`.trim()
+    eventData.host = event.venue.name || ''
+  }
+
   eventData.start = unixtime || ''
   if (event.duration) {
     eventData.end = unixtime + Math.floor(event.duration / 1000)
