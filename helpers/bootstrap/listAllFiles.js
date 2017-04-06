@@ -1,6 +1,6 @@
 module.exports = function listAllFiles (dir, filelist) {
-  var path = path || require('path')
-  var fs = fs || require('fs')
+  var path = require('path')
+  var fs = require('fs')
   var files = fs.readdirSync(dir)
   filelist = filelist || []
   files.forEach(function (file) {

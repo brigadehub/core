@@ -76,6 +76,7 @@
     "express-validator": "^2.18.0",
     "faker": "^3.1.0",
     "flat": "^2.0.1",
+    "flatten-object": "^1.2.0",
     "gh-ls": "^1.0.0",
     "github-get": "^0.3.1",
     "gulp": "^3.9.1",
@@ -91,7 +92,6 @@
     "moment": "^2.11.1",
     "mongodb-collection-dump": "^0.2.1",
     "mongoose": "^4.3.5",
-    "mongoose-schema-to-graphql": "^2.4.5",
     "morgan": "^1.6.1",
     "mortimer": "^2.1.0",
     "multer": "^1.2.1",
@@ -108,7 +108,7 @@
     "require-dir": "https://registry.npmjs.org/require-dir/-/require-dir-0.3.0.tgz",
     "selectn": "1.0.9",
     "serve-favicon": "^2.3.0",
-    "slug": "^0.9.1",
+    "slugify": "^1.1.0",
     "supertest": "^2.0.1",
     "through": "^2.3.8"
   },
@@ -145,7 +145,7 @@
   },
   "config": {
     "ghooks": {
-      "pre-push": "npm test"
+      "pre-push": "echo this should run npm test"
     },
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
