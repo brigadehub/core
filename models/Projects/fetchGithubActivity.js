@@ -5,19 +5,24 @@ const Users = require('../Users')
 
 const request = require('superagent')
 
-module.exports = function fetchGithubActivity (project) {
+module.exports = function fetchGithubActivity(project) {
   return new Promise((resolve, reject) => {
     project.lastCheckedGithub = project.lastCheckedGithub || 1
     const checkTimeframe = moment(new Date()).unix() - moment(project.lastCheckedGithub).unix()
     // if (true) { // 86400 seconds = 24 hours
     if (project.checkFromGithub && project.lastCheckedGithub && checkTimeframe >= 86400) { // 86400 seconds = 24 hours
-      Users.findOne({username: project.checkFromGithubAs}, (err, results) => {
+      Users.findOne({ username: project.checkFromGithubAs }, (err, results) => {
         if (err) return reject(err)
         if (!results) return reject(new Error(`No user with username ${project.checkFromGithubAs} found`))
-        let token = _.find(results.tokens, {kind: 'github'})
+        let token = _.find(results.tokens, { kind: 'github' })
         if (!token) return reject(new Error(`User ${project.checkFromGithubAs} does not have a github token`))
         token = token.accessToken
-        const getActivityCalls = project.repositories.map(parseOwnerRepo).map((repo) => getGithubActivity(repo, token))
+        var getActivityCalls
+        try {
+          getActivityCalls = project.repositories.map(parseOwnerRepo).map((repo) => getGithubActivity(repo, token))
+        } catch (e) {
+          reject
+        }
         Promise.all(getActivityCalls).then((results) => {
           let finalActivity = []
           finalActivity = finalActivity.concat.apply(finalActivity, results)
@@ -32,7 +37,7 @@ module.exports = function fetchGithubActivity (project) {
   })
 }
 
-function parseOwnerRepo (url) {
+function parseOwnerRepo(url) {
   if (url.indexOf('https://github.com/') > -1) {
     let ownerRepo = url.split('https://github.com/')[1]
     ownerRepo = _.take(ownerRepo.split('/'), 2).join('/')
@@ -41,7 +46,7 @@ function parseOwnerRepo (url) {
   throw new Error('Repo URL is invalid!')
 }
 
-function getGithubActivity (ownerRepo, token) {
+function getGithubActivity(ownerRepo, token) {
   return new Promise((resolve, reject) => {
     const commitsUrl = `https://api.github.com/repos/${ownerRepo}/commits`
     const commentsUrl = `https://api.github.com/repos/${ownerRepo}/issues/comments?sort=created&direction=desc`
