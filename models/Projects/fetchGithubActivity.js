@@ -17,7 +17,7 @@ module.exports = function fetchGithubActivity (project) {
         let token = _.find(results.tokens, { kind: 'github' })
         if (!token) return reject(new Error(`User ${project.checkFromGithubAs} does not have a github token`))
         token = token.accessToken
-        var getActivityCalls
+        let getActivityCalls = []
         try {
           getActivityCalls = project.repositories.map(parseOwnerRepo).map((repo) => getGithubActivity(repo, token))
         } catch (e) {
