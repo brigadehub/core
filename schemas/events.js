@@ -11,5 +11,7 @@ module.exports = {
   // These options are used within brigadehub for content storage
   description: {type: String, default: ''},
   location: {type: String, default: ''},
+  latitude: {type: Number},
+  longitude: {type: Number},
   host: {type: String, default: ''}
 }
