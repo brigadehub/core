@@ -38,7 +38,7 @@ module.exports = function fetchGithubRepos (brigade, user, cb) {
             return new Promise(function (resolve, reject) {
               Projects.find({githubSlug: project.repo.name, brigade: brigade.slug}, function (err, foundProject) {
                 if (err) console.error(err)
-                if (!foundProject.length) {
+                if (!foundProject || !foundProject.length) {
                   console.log('creating', project.repo.name)
                   var projectData = createUpdateProjectData(project, {}, brigade)
                   var newProject = new Projects(projectData)

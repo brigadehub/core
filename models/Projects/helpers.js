@@ -2,7 +2,7 @@ var request = require('request')
 var _ = require('lodash')
 var linkHeaderParser = require('link-header-parser')
 var defaultHeaders = require('../../config/defaultGithubAPIHeaders')
-var slug = require('slug')
+var slug = require('slugify')
 
 module.exports.getRepos = function getRepos (url, aggregate, user, callback) {
   var headers = _.cloneDeep(defaultHeaders)
@@ -17,7 +17,7 @@ module.exports.getRepos = function getRepos (url, aggregate, user, callback) {
       var parsed = JSON.parse(body)
       aggregate = aggregate.concat(parsed)
       aggregate = _.uniq(aggregate)
-      console.log('aggregate count', aggregate.length)
+      console.log('aggregate count', aggregate && aggregate.length)
       // if there's a next link in header, call that recursively
       var linkHeader = linkHeaderParser(response.headers.link)
       if (linkHeader.next) {

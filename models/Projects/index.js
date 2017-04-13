@@ -7,7 +7,9 @@ const postFind = require('./postFind')
 const postFindOne = require('./postFindOne')
 const publishToGithub = require('./publishToGithub')
 const fetchGithubUsers = require('./fetchGithubUsers')
-const projectsSchema = new mongoose.Schema(require('../../schemas/projects'))
+const schemas = require('../../schemas')
+const projectSchemaRaw = schemas.projects
+const projectsSchema = new mongoose.Schema(projectSchemaRaw)
 
 projectsSchema.statics.fetchGithubRepos = fetchGithubRepos
 projectsSchema.statics.fetchGithubUsers = fetchGithubUsers

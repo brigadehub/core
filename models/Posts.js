@@ -4,7 +4,7 @@ mongoose.Promise = global.Promise
 var moment = require('moment')
 // var request = require('request')
 var ghls = require('gh-ls')
-var slug = require('slug')
+var slug = require('slugify')
 var getGhFile = require('github-get')
 var _ = require('lodash')
 
