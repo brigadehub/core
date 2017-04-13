@@ -5,7 +5,7 @@ const Users = require('../Users')
 
 const request = require('superagent')
 
-module.exports = function fetchGithubActivity(project) {
+module.exports = function fetchGithubActivity (project) {
   return new Promise((resolve, reject) => {
     project.lastCheckedGithub = project.lastCheckedGithub || 1
     const checkTimeframe = moment(new Date()).unix() - moment(project.lastCheckedGithub).unix()
@@ -21,7 +21,7 @@ module.exports = function fetchGithubActivity(project) {
         try {
           getActivityCalls = project.repositories.map(parseOwnerRepo).map((repo) => getGithubActivity(repo, token))
         } catch (e) {
-          reject
+          return reject(e)
         }
         Promise.all(getActivityCalls).then((results) => {
           let finalActivity = []
@@ -37,7 +37,7 @@ module.exports = function fetchGithubActivity(project) {
   })
 }
 
-function parseOwnerRepo(url) {
+function parseOwnerRepo (url) {
   if (url.indexOf('https://github.com/') > -1) {
     let ownerRepo = url.split('https://github.com/')[1]
     ownerRepo = _.take(ownerRepo.split('/'), 2).join('/')
@@ -46,7 +46,7 @@ function parseOwnerRepo(url) {
   throw new Error('Repo URL is invalid!')
 }
 
-function getGithubActivity(ownerRepo, token) {
+function getGithubActivity (ownerRepo, token) {
   return new Promise((resolve, reject) => {
     const commitsUrl = `https://api.github.com/repos/${ownerRepo}/commits`
     const commentsUrl = `https://api.github.com/repos/${ownerRepo}/issues/comments?sort=created&direction=desc`
