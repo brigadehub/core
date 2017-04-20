@@ -11,13 +11,18 @@ module.exports = function fetchGithubActivity (project) {
     const checkTimeframe = moment(new Date()).unix() - moment(project.lastCheckedGithub).unix()
     // if (true) { // 86400 seconds = 24 hours
     if (project.checkFromGithub && project.lastCheckedGithub && checkTimeframe >= 86400) { // 86400 seconds = 24 hours
-      Users.findOne({username: project.checkFromGithubAs}, (err, results) => {
+      Users.findOne({ username: project.checkFromGithubAs }, (err, results) => {
         if (err) return reject(err)
         if (!results) return reject(new Error(`No user with username ${project.checkFromGithubAs} found`))
-        let token = _.find(results.tokens, {kind: 'github'})
+        let token = _.find(results.tokens, { kind: 'github' })
         if (!token) return reject(new Error(`User ${project.checkFromGithubAs} does not have a github token`))
         token = token.accessToken
-        const getActivityCalls = project.repositories.map(parseOwnerRepo).map((repo) => getGithubActivity(repo, token))
+        let getActivityCalls = []
+        try {
+          getActivityCalls = project.repositories.map(parseOwnerRepo).map((repo) => getGithubActivity(repo, token))
+        } catch (e) {
+          return reject(e)
+        }
         Promise.all(getActivityCalls).then((results) => {
           let finalActivity = []
           finalActivity = finalActivity.concat.apply(finalActivity, results)
