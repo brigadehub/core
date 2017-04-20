@@ -29,13 +29,11 @@ checkinSchema.post('find', function (checkins, next) {
     fetchUserCalls.push(fetchUser(checkin, index))
   }
   Promise.all(fetchUserCalls).then((results) => {
-    console.log('after promises', results)
     for (let resultIndex in results) {
       const result = results[resultIndex]
       checkins[result.index].user = result.user
       checkins[result.index].userPresent = !!result.user
     }
-    console.log(checkins)
     next(null, checkins)
   }).catch((err) => {
     next(err)
@@ -45,7 +43,6 @@ checkinSchema.post('find', function (checkins, next) {
 checkinSchema.post('findOne', function (checkin, next) {
   // check username presence + for corresponding user
   fetchUser(checkin).then(function (results) {
-    console.log('after promise')
     checkin.user = results.user
     checkin.userPresent = !!results.user
     next(null, checkin)
