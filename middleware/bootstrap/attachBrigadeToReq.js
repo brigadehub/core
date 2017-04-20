@@ -9,10 +9,16 @@ const Analytics = require('analytics-node')
 let analytics // placeholder for instantiated client
 const pkg = require('../../package.json')
 
+const schemas = require('../../schemas')
+
 module.exports = function attachBrigadeToReq (req, res, next) {
   req.models = models
   req.helpers = helpers
   req.config = config
+  req.schemas = {
+    flat: schemas.flat,
+    raw: schemas.raw
+  }
   req.models.Brigade.findOne({}, function (err, results) {
     if (err) throw err
     if (!results) throw new Error('BRIGADE NOT IN DATABASE')

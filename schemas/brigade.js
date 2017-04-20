@@ -353,5 +353,14 @@ module.exports = {
   // for dynamic active flag on projects
   lastCheckedGithub: {
     type: Date
+  },
+  cssOverride: {
+    type: String,
+    default: '',
+    description: 'Custom CSS to load on every page. Note: This may change the interactivity of the theme. If you need to report styling bugs, please include the contents of this field in the Github Issue.',
+    label: 'CSS Overrides',
+    public: true,
+    fieldType: 'textarea:code',
+    futureModel: 'application'
   }
 }
