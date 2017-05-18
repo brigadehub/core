@@ -10,6 +10,14 @@ const checkins = require('./checkins')
 const nested = require('../helpers/nested')
 
 function stripForMongoose (schema) {
+  const newSchema = flattenSchema(schema)
+  schema = newSchema
+  schema = forEach(schema, (field, key) => { schema[key] = pick(field, ['type', 'default']) })
+  schema = nested.unflatten(schema)
+  return schema
+}
+
+function flattenSchema (schema) {
   const newSchema = {}
   schema = nested.flatten(schema)
   for (let keyIndex in Object.keys(schema)) {
@@ -21,14 +29,7 @@ function stripForMongoose (schema) {
     newSchema[newKey] = newSchema[newKey] || {}
     newSchema[newKey][subKey] = value
   }
-  console.log('schema', schema)
-  console.log('newSchema', newSchema)
-  schema = newSchema
-  schema = forEach(schema, (field, key) => { schema[key] = pick(field, ['type', 'default']) })
-  console.log('pick', schema)
-  schema = nested.unflatten(schema)
-  console.log('unflatten', schema)
-  return schema
+  return newSchema
 }
 
 module.exports = {
@@ -38,6 +39,14 @@ module.exports = {
   events: stripForMongoose(events),
   posts: stripForMongoose(posts),
   checkins: stripForMongoose(checkins),
+  flat: {
+    brigade: flattenSchema(brigade),
+    projects: flattenSchema(projects),
+    users: flattenSchema(users),
+    events: flattenSchema(events),
+    posts: flattenSchema(posts),
+    checkins: flattenSchema(checkins)
+  },
   raw: {
     brigade,
     projects,
