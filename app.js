@@ -211,7 +211,7 @@ module.exports = function (opts) {
       next()
     }
     app.get('/auth/github', inspectAuth, passport.authenticate('github', {
-      scope: [ 'user:email', 'public_repo' ]
+      scope: [ 'user:email' ]
     }))
     app.get('/auth/github/elevate', inspectAuth, middleware.passport.elevateScope)
     app.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), function (req, res) {
